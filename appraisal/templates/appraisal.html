@@ -1,0 +1,27 @@
+{% extends 'offcanvas.html' %}
+{% load bootstrap5 %}
+{% load static %}
+{% block main %}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+<section class="dash2">
+    <div class="content-wrapper general-bgw" style="padding-bottom: 5rem;">
+        <!--alert -->
+        {% include 'alerts.html' %}
+
+        {% if HOD_User == True %}
+        {% include 'hod.html' %}
+        {% else %}
+        {% include 'users.html' %}
+        <!-- Start Employee Appraisal -->
+
+        {% endif %}
+    </div>
+</section>
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+{% endblock %}

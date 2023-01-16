@@ -1,0 +1,98 @@
+{% extends "base-html.html" %}
+{% load fontawesome_6 %}
+{% block title %}
+LOGIN
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="../../static/css/auth.css">
+<link rel="stylesheet" href="../../static/css/base.css">
+{% fontawesome_6_static %}
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+
+    :root {
+        --first-color: #144a85;
+        --first-color-light: #6c8aaf;
+        --green-color: #134326;
+        --red-color: #e51e25;
+        --sand-tan: #e1b382;
+        --dark-color: #444a4a;
+        --olive: #a3bcb6;
+        --white-color: #f7f6fb;
+        --primary-font: "Gelasio", serif;
+        --normal-font: "Titillium Web", sans-serif;
+    }
+
+    body,
+    input {
+        background: var(--first-color-light);
+        font-family: "Poppins", sans-serif;
+    }
+
+    .htmx-indicator {
+        opacity: 0;
+        transition: opacity 500ms ease-in;
+    }
+
+    .htmx-request .htmx-indicator {
+        opacity: 1
+    }
+
+    .htmx-request.htmx-indicator {
+        opacity: 1
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="wrapping">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="forms-container">
+                    <div class="signin-signup">
+                        <form hx-post="{% url 'auth' %}" class="sign-in-form">
+                            {% csrf_token %}
+                            <div class="logo mx-auto text-center">
+                                <img src="../../static/img/logo/fav.png" alt="" srcset="">
+                            </div>
+                            <h2 class="title">Login</h2>
+                            {% include 'alerts.html' %}
+                            <div class="input-field">
+                                <i class="las la-user-circle"></i>
+                                <input type="text" placeholder="Username" name="username" />
+                            </div>
+                            <div class="input-field">
+                                <i class="las la-lock"></i>
+                                <input type="password" placeholder="Password" name="password" />
+                            </div>
+                            <button hx-post="{% url 'auth' %}" hx-swap="none" type="submit" class="btn">Login</button>
+                            <p class='htmx-indicator text-white text-small'>Loading ....</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panels-container">
+                    <div class="panel left-panel">
+                        <div class="content">
+                            <h3>EMPLOYEE SELF SERVICE PORTAL</h3>
+                            <p>
+                                The portal allows employees to directly complete job-related tasks in a more
+                                reliable,
+                                effective, and self-empowering experience.
+                            </p>
+                            <button class="btn transparent my-2" id="sign-up-btn">
+                                Download Manual {% fa6_icon 'download' 'fa' %}
+                            </button>
+                        </div>
+                        <img src="../../static/icons/l1.svg" class="image img-fluid" alt="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
