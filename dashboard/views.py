@@ -8,16 +8,16 @@ from myRequest.views import UserObjectMixins
 # Create your views here.
 
 class Dashboard(UserObjectMixins,View):
-
     def get(self,request):
         try:
             userId =  request.session['User_ID']
             empNo = request.session['Employee_No_']
             HOD_User = request.session['HOD_User']
             full_name = request.session['full_name'] 
-            department_name = request.session['Department_Name'] 
+
             empAppraisal = ''
             pending_approval_count = 0
+            payroll_period = ''
             
             Leave = self.one_filter("/QyLeaveApplications","User_ID","eq",userId)
             app_leave_list = len([x for x in Leave[1]  if x['Status'] == 'Released'])
@@ -50,23 +50,14 @@ class Dashboard(UserObjectMixins,View):
             Store = self.one_filter("/QyStoreRequisitionHeaders","Requested_By","eq",userId)
             app_store_list = len([x for x in Store[1] if x['Status'] == 'Released'])
             pending_store = len([x for x in Store[1] if x['Status'] == 'Pending Approval'])
-            
-            if HOD_User == False:
-                empAppraisalResponse = self.one_filter("/QyEmployeeAppraisals","EmployeeNo","eq",empNo)
-                empAppraisal = len([x for x in empAppraisalResponse[1] if (x['Status']=='Self Appraisal') or (x['Status']=='Open')])
 
-            if HOD_User == True:
-                QyApprovalEntries = self.double_filtered_data("/QyApprovalEntries","Approver_ID","eq",userId,
-                                                              "and","Status","eq","Open")
-                pending_approval_count = QyApprovalEntries[0]
                 
             payroll_url = config.O_DATA.format("/QyPayrollPeriods?$filter=Closed%20eq%20true%20and%20Status%20eq%20%27Approved%27") 
             get_payroll_periods = self.get_object(payroll_url)
-            payroll_period = get_payroll_periods['value'][0]
+            for x in get_payroll_periods['value']:
+                payroll_period =x[0]
             
-            salary_advance = self.one_filter("/QySalaryAdvances","Employee_No","eq",empNo)
-            Pending_advances = len([x for x in salary_advance[1] if x['Loan_Status'] == 'Being Processed'])
-            approved_advances = len([x for x in salary_advance[1] if x['Loan_Status'] == 'Approved'])
+
             
             general_requisitions = self.one_filter("/QyGeneralRequisitionHeaders","Requested_By","eq",userId)
             pending_general = len([x for x in general_requisitions[1] if x['Status'] == 'Pending Approval'])
@@ -86,10 +77,10 @@ class Dashboard(UserObjectMixins,View):
             messages.success(request, "Session Expired. Please Login")
             return redirect('auth')
         ctx = {
-            "today": self.todays_date,"department_name":department_name,
+            "today": self.todays_date,
             "res": open, "full": userId,"full_name":full_name,"payroll_period":payroll_period,
-            "pending_imprest":pending_imprest, "imprest_app": app_imp_list,"approved_advances":approved_advances,
-            "pendTrain":pendTrain,"app_train": app_train_list,"Pending_advances":Pending_advances,
+            "pending_imprest":pending_imprest, "imprest_app": app_imp_list,
+            "pendTrain":pendTrain,"app_train": app_train_list,
             "app_store": app_store_list, "pending_store": pending_store,"pending_general":pending_general,
             "pendLeave":pendLeave, "approved_leave": app_leave_list,"approved_general":approved_general,
             "app_repair": app_repair_list,"pending_repair": pending_repair,

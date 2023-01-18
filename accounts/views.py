@@ -1,88 +1,59 @@
 
 from django.shortcuts import render, redirect
-from django.conf import settings as config
-import requests
-from requests import Session
 from django.contrib import messages
-from requests.auth import HTTPBasicAuth
 from django.views import View
-from datetime import date
-import datetime
-import json
-from myRequest.views import HTTPResponseHXRedirect
-from django.urls import reverse_lazy
+from myRequest.views import UserObjectMixins
+import asyncio
+import aiohttp
+from asgiref.sync import sync_to_async
 
 
-# Create your views here.
-class UserObjectMixin(object):
-    model =None
-    user = Session()
-    todays_date = datetime.datetime.now().strftime("%b. %d, %Y %A")
-    def get_object(self,username,password,endpoint):
-        self.user.auth = HTTPBasicAuth(username, password)
-        response = self.user.get(endpoint, timeout=10)
-        return response
-
-class Login(UserObjectMixin,View):
+class Login(UserObjectMixins,View):
     template_name = 'auth.html'
-    def get(self, request):
+    async def get(self, request):
         return render(request, self.template_name)
-    def post(self,request):
-        username = request.POST.get('username').upper().strip()
-        password = request.POST.get('password').strip()
-        print(username, password)
+    async def post(self,request):
         try:
-            QyUserSetup = config.O_DATA.format(f"/QyUserSetup?$filter=User_ID%20eq%20%27{username}%27")
-            res_data = self.get_object(username, password,QyUserSetup)
-            if res_data.status_code != 200:
-                print("QyUserSetup:",res_data.status_code)
-                messages.error(request,f"Wrong Password/Username. QyUserSetup failed with status code: {res_data.status_code}")
-                if request.htmx:
-                    return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
-                return redirect('auth')
-            cleanedData = res_data.json()
-            for data in cleanedData['value']:
-                output_json = json.dumps(data)
-                loadedData= json.loads(output_json)
-                request.session['Employee_No_'] = loadedData['Employee_No_']
-                request.session['Customer_No_'] = loadedData['Customer_No_']
-                request.session['User_ID'] = loadedData['User_ID']
-                request.session['E_Mail'] = loadedData['E_Mail']
-                request.session['User_Responsibility_Center'] = loadedData['User_Responsibility_Center']
-                request.session['HOD_User'] = loadedData['HOD_User']
-                request.session['password'] = password
-                current_year = date.today().year
-                request.session['years'] = current_year
-                QyEmployees = config.O_DATA.format(f"/QyEmployees?$filter=No_%20eq%20%27{request.session['Employee_No_']}%27")
-                response = self.get_object(username, password,QyEmployees)
-                if response.status_code != 200:
-                    messages.error(request,f"Wrong Password/Username. QyEmployees failed with status code: {response.status_code}")
-                    if request.htmx:
-                        return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+            username = request.POST.get('username').upper().strip()
+            password = request.POST.get('password').strip()
+            async with aiohttp.ClientSession() as session:
+                task_get_user_setup = asyncio.ensure_future(self.fetch_data(session,username,password,
+                                                                        "/QyUserSetup","User_ID","eq"))
+                
+                user_response = await asyncio.gather(task_get_user_setup)
+                
+                if user_response[0]['status_code'] == 401:
+                    messages.error(request,"Authentication Error: Invalid credentials")
                     return redirect('auth')
-                cleanedData2 = response.json()
-                for emp in cleanedData2['value']:
-                    output_json2 = json.dumps(emp)
-                    loadedData2= json.loads(output_json2)
-                    request.session['Department'] = loadedData2['Department_Code']
-                    request.session['full_name'] = loadedData2['First_Name'] + " " + loadedData2['Last_Name'] 
-                    request.session['Department_Name'] = loadedData2['Department_Name']
-                messages.success(request,f"Success. Logged in as {request.session['User_ID']}")
-                if request.htmx:
-                    return HTTPResponseHXRedirect(redirect_to=reverse_lazy("dashboard"))
-                return redirect('dashboard')
-        except requests.exceptions.RequestException as e:
+                if user_response[0]['status_code'] == 200:
+                    for data in user_response[0]['data']:
+                        await sync_to_async(request.session.__setitem__)('Employee_No_', data['Employee_No_'])
+                        await sync_to_async(request.session.__setitem__)('Customer_No_', data['Customer_No_'])
+                        await sync_to_async(request.session.__setitem__)('User_ID', data['User_ID'])
+                        await sync_to_async(request.session.__setitem__)('E_Mail', data['E_Mail'])
+                        await sync_to_async(request.session.__setitem__)('User_Responsibility_Center', data['User_Responsibility_Center'])
+                        await sync_to_async(request.session.__setitem__)('HOD_User', data['HOD_User'])
+                        await sync_to_async(request.session.__setitem__)('password', password)
+                        await sync_to_async(request.session.save)()
+                        task_get_employee = asyncio.ensure_future(self.fetch_one_filtered_data(session,request,
+                                                       "/QyEmployees","No_","eq",request.session['Employee_No_']))
+                    
+                        employee_response = await asyncio.gather(task_get_employee)
+                    
+                        for data in employee_response[0]['data']:
+                            await sync_to_async(request.session.__setitem__)('full_name', data['First_Name'] + " " + data['Last_Name'] )
+                            messages.success(request,f"Success. Logged in as {request.session['full_name']}")
+                            return redirect('dashboard')
+        except (aiohttp.ClientError, aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError) as e:
             print(e)
-            messages.error(request, "Invalid Username or Password")
-            if request.htmx:
-                return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
-            return redirect('auth')
-        except TypeError as e:
+            messages.success(request,"connection refused,non-200 response")
+            return redirect('auth')   
+        except Exception as e:
             print(e)
-            messages.error(request, e)
-            if request.htmx:
-                return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+            messages.success(request,"connection refused,non-200 response")
             return redirect('auth')
+                   
+            
 
 def logout(request):
     try:
@@ -92,7 +63,7 @@ def logout(request):
         print(False)
     return redirect('auth')
 
-class profile(UserObjectMixin,View):
+class profile(UserObjectMixins,View):
     def get(self, request):
         try:
             year =request.session['years']

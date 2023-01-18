@@ -1,190 +1,52 @@
-<section class="n-login">
-    <div class="container-fluid px-0">
-        <div class="row">
-            <div id='n-left' class="col-md-6">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="n-icon mx-auto text-center">
-                            <p>
-                                <i class="fas fa-align-left" style="color:white;font-size:25px"></i>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 mx-auto text-center">
-                        <div class="brand">
-                            <h2 class="n-brand">EMPLOYEE SELF SERVICE PORTAL</br> <span class="br-brand">KMPDC</span>
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="l-text mx-auto text-center">
-
-                            <p>
-                                To regulate the training, practice and licensing of medicine & dentistry and
-                                healthcare
-                                institutions that include private & mission hospitals, medical, dental centers &
-                                clinics, nursing and maternity homes and standalone funeral homes.
-                            </p>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="l-image mx-auto text-center">
-                            <img src='../../static/img/logo/gok_logo.png' class="img-fluid" alt="brand image" srcset="">
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div id="n-right1" class="col-md-6">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="logo mx-auto text-center">
-                            <img src="../../static/img/logo/fav.png" alt="" srcset="">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-text">
-                            <div class="pr-3" style="margin-right: 2rem !important;">
-                                {% include 'alerts.html' %}
-                            </div>
-                            <h3>Sign In</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="l-form">
-                            <div class="login-brand">
-                                <img src="assets/img/stisla-fill.svg" alt="logo" width="100"
-                                    class="shadow-light rounded-circle">
-                            </div>
-
-                            <div class="card card-primary">
-                                <div class="card-header">
-                                    <h4>Login</h4>
-                                </div>
-
-                                <div class="card-body">
-                                    <form method="POST" action="#" class="needs-validation" novalidate="">
-                                        <div class="form-group">
-                                            <label for="email">Email</label>
-                                            <input id="email" type="email" class="form-control" name="email"
-                                                tabindex="1" required autofocus>
-                                            <div class="invalid-feedback">
-                                                Please fill in your email
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <div class="d-block">
-                                                <label for="password" class="control-label">Password</label>
-                                                <div class="float-right">
-                                                    <a href="auth-forgot-password.html" class="text-small">
-                                                        Forgot Password?
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <input id="password" type="password" class="form-control" name="password"
-                                                tabindex="2" required>
-                                            <div class="invalid-feedback">
-                                                please fill in your password
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" name="remember" class="custom-control-input"
-                                                    tabindex="3" id="remember-me">
-                                                <label class="custom-control-label" for="remember-me">Remember
-                                                    Me</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                                                Login
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <div class="text-center mt-4 mb-3">
-                                        <div class="text-job text-muted">Login With Social</div>
-                                    </div>
-                                    <div class="row sm-gutters">
-                                        <div class="col-6">
-                                            <a class="btn btn-block btn-social btn-facebook">
-                                                <span class="fab fa-facebook"></span> Facebook
-                                            </a>
-                                        </div>
-                                        <div class="col-6">
-                                            <a class="btn btn-block btn-social btn-twitter">
-                                                <span class="fab fa-twitter"></span> Twitter
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="mt-5 text-muted text-center">
-                                Don't have an account? <a href="auth-register.html">Create One</a>
-                            </div>
-                            <div class="login-form">
-                                <form hx-post="{% url 'auth' %}" method="post">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <label class="form-label">Username</label>
-                                        <input type="text" class="form-control" name="username"
-                                            placeholder="Enter Username" required="required">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Password</label>
-                                        <input type="password" class="form-control" name="password"
-                                            placeholder="Enter Password" required="required">
-                                    </div>
-                                    <div class="form-group">
-                                        <button hx-post="{% url 'auth' %}" hx-swap="none" type="submit"
-                                            class="btn btn-primary"
-                                            style="text-decoration:none;color:white;text-shadow: 0 1px 0 #134326;">Login</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-</section>
-            
-
-Talk about shida walikua nayo (pain)
-impact of the solution(in numbers)
-
-if pain point is about finance, wacha mtu wa finance aongelelee
-
-A photo, permission ya huyu mtu tuweke jina, role.
-
-
-<div class="banner-bg" style="
-            background-image:
-                linear-gradient(180deg, rgba(24, 6, 6, 0) 35.87%, #190505 91.96%),
-                url(https://www.hyas.com/hubfs/AdobeStock_301163468-1.jpeg);
-            opacity: 0.3;">
-  </div>
-
-
-
-
-            
-
-            
+try:
+            QyUserSetup = config.O_DATA.format(f"?$filter=%20eq%20%27{username}%27")
+            res_data = self.get_object(username, password,QyUserSetup)
+            if res_data.status_code != 200:
+                print("QyUserSetup:",res_data.status_code)
+                messages.error(request,f"Wrong Password/Username. QyUserSetup failed with status code: {res_data.status_code}")
+                if request.htmx:
+                    return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+                return redirect('auth')
+            cleanedData = res_data.json()
+            for data in cleanedData['value']:
+                output_json = json.dumps(data)
+                loadedData= json.loads(output_json)
+                request.session['Employee_No_'] = loadedData['Employee_No_']
+                request.session['Customer_No_'] = loadedData['Customer_No_']
+                request.session['User_ID'] = loadedData['User_ID']
+                request.session['E_Mail'] = loadedData['E_Mail']
+                request.session['User_Responsibility_Center'] = loadedData['User_Responsibility_Center']
+                request.session['HOD_User'] = loadedData['HOD_User']
+                request.session['password'] = password
+                current_year = date.today().year
+                request.session['years'] = current_year
+                QyEmployees = config.O_DATA.format(f"/?$filter=%20eq%20%27{request.session['Employee_No_']}%27")
+                response = self.get_object(username, password,QyEmployees)
+                if response.status_code != 200:
+                    messages.error(request,f"Wrong Password/Username. QyEmployees failed with status code: {response.status_code}")
+                    if request.htmx:
+                        return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+                    return redirect('auth')
+                cleanedData2 = response.json()
+                for emp in cleanedData2['value']:
+                    output_json2 = json.dumps(emp)
+                    loadedData2= json.loads(output_json2)
+                    request.session['full_name'] = loadedData2['First_Name'] + " " + loadedData2['Last_Name'] 
+                messages.success(request,f"Success. Logged in as {request.session['User_ID']}")
+                if request.htmx:
+                    return HTTPResponseHXRedirect(redirect_to=reverse_lazy("dashboard"))
+                return redirect('dashboard')
+        except requests.exceptions.RequestException as e:
+            print(e)
+            messages.error(request, "Invalid Username or Password")
+            if request.htmx:
+                return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+            return redirect('auth')
+        except TypeError as e:
+            print(e)
+            messages.error(request, e)
+            if request.htmx:
+                return HTTPResponseHXRedirect(redirect_to=reverse_lazy("auth"))
+            return redirect('auth')
 
            

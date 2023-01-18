@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+ALLOWED_HOSTS = ['.localhost','.127.0.0.1','.20.127.107.47','.essportal.kobby.co.ke']
 
 DATABASES = {
     'default': {
@@ -68,6 +68,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'KTL.urls'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 TEMPLATES = [
     {
