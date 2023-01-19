@@ -2,15 +2,15 @@
     <div class="col-lg-2 col-sm-6">
         <div class="card-box bg-blue h-100">
             <div class="inner">
-                <h3> {{approved_leave}} </h3>
+                <h3> {{app_leave_list}} </h3>
                 <p> Approved Leave Requests</p>
             </div>
             <div class="icon">
                 <i class="las la-user-check"></i>
             </div>
-            {% if approved_leave == 0 %}
+            {% if app_leave_list == 0 %}
             <a href="{% url 'leave' %}" class="card-box-footer">New Request <i class="las la-plus"></i></a>
-            {% elif approved_leave > 0  %}
+            {% elif app_leave_list > 0  %}
             <a href="{% url 'leave' %}" class="card-box-footer">View All <i class="las la-arrow-circle-right"></i></a>
             {% endif %}
         </div>
@@ -18,15 +18,15 @@
     <div class="col-lg-2 col-sm-6">
         <div class="card-box bg-orange h-100">
             <div class="inner">
-                <h3> {{imprest_app}} </h3>
+                <h3> {{app_imprest_list}} </h3>
                 <p> Approved Imprest Requests </p>
             </div>
             <div class="icon">
                 <i class="las la-thumbs-up"></i>
             </div>
-            {% if imprest_app == 0 %}
+            {% if app_imprest_list == 0 %}
             <a href="{% url 'imprestReq' %}" class="card-box-footer">New Request <i class="las la-plus"></i></a>
-            {% elif imprest_app > 0  %}
+            {% elif app_imprest_list > 0  %}
             <a href="{% url 'imprestReq' %}" class="card-box-footer">View All <i
                     class="las la-arrow-circle-right"></i></a>
             {% endif %}
@@ -35,15 +35,15 @@
     <div class="col-lg-3 col-sm-6">
         <div class="card-box bg-red h-100">
             <div class="inner">
-                <h3> {{surrender_app}} </h3>
+                <h3> {{app_surrender_list}} </h3>
                 <p> Approved Imprest Surrenders </p>
             </div>
             <div class="icon">
                 <i class="las la-handshake"></i>
             </div>
-            {% if surrender_app == 0 %}
+            {% if app_surrender_list == 0 %}
             <a href="{% url 'imprestSurr' %}" class="card-box-footer">New Request <i class="las la-plus"></i></a>
-            {% elif surrender_app > 0  %}
+            {% elif app_surrender_list > 0  %}
             <a href="{% url 'imprestSurr' %}" class="card-box-footer">View All <i
                     class="las la-arrow-circle-right"></i></a>
             {% endif %}
@@ -52,15 +52,15 @@
     <div class="col-lg-2 col-sm-6">
         <div class="card-box bg-green h-100">
             <div class="inner">
-                <h3> {{app_claim}} </h3>
+                <h3> {{app_claim_list}} </h3>
                 <p> Approved Staff Claims</p>
             </div>
             <div class="icon">
                 <i class="las la-hand-holding"></i>
             </div>
-            {% if app_claim == 0 %}
+            {% if app_claim_list == 0 %}
             <a href="{% url 'claim' %}" class="card-box-footer">New Request <i class="las la-plus"></i></a>
-            {% elif app_claim > 0  %}
+            {% elif app_claim_list > 0  %}
             <a href="{% url 'claim' %}" class="card-box-footer">View All <i class="las la-arrow-circle-right"></i></a>
             {% endif %}
         </div>
@@ -69,14 +69,19 @@
         <div class="card-box bg-dark h-100">
             {% if HOD_User == False %}
             <div class="inner">
-                <h3> {{empAppraisal}} </h3>
-                <p> New Appraisal Requests </p>
+                <h3> {{approved_general}} </h3>
+                <p> Approved General Requests </p>
             </div>
             <div class="icon">
                 <i class="fa fa-users"></i>
             </div>
-            <a href="{% url 'AppraisalRequests' %}" class="card-box-footer">View <i
+            {% if approved_general == 0 %}
+            <a href="{% url 'GeneralRequisition' %}" class="card-box-footer">New Request <i class="las la-plus"></i></a>
+            {% elif approved_general > 0  %}
+            <a href="{% url 'GeneralRequisition' %}" class="card-box-footer">View All <i
                     class="las la-arrow-circle-right"></i></a>
+            {% endif %}
+
             {% elif HOD_User == True %}
             <div class="inner">
                 <h3> {{pending_approval_count}} </h3>

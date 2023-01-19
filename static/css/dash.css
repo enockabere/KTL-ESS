@@ -97,25 +97,56 @@
   border-radius: 50%;
   color: var(--green-color);
 }
+
 .summ-cards {
-  transition: all 500ms cubic-bezier(0.19, 1, 0.22, 1);
+  padding: 1rem;
+  height: 200px !important;
+  border-bottom: 3px solid var(--red-color);
 }
+
 .summ-cards .card-title {
   color: #000;
-  padding-top: 1rem;
   padding-left: 1rem;
-  font-family: var(--lato-family);
+  font-family: var(--primary-font);
   text-shadow: 0 1px 0 white;
 }
 
-.c-content-top h5 {
-  font-family: var(--lato-family);
-  font-size: 1.5rem;
+.summ-cards2 {
+  padding: 1rem;
+  height: 200px !important;
+  border-bottom: 3px solid var(--first-color);
 }
-.c-content-top h6 {
-  font-family: var(--normal-font);
-  color: #e59866;
+
+.summ-cards2 .card-title {
+  color: #000;
+  padding-left: 1rem;
+  font-family: var(--primary-font);
+  text-shadow: 0 1px 0 white;
 }
+
+.summ-cards3 {
+  padding: 1rem;
+  height: 200px !important;
+  border-bottom: 3px solid var(--green);
+}
+
+.summ-cards3 .card-title {
+  color: #000;
+  padding-left: 1rem;
+  font-family: var(--primary-font);
+  text-shadow: 0 1px 0 white;
+}
+
+.c1,
+.c2 {
+  border-right: 2px solid green;
+}
+
+.c-content h6 {
+  font-family: var(--third-font);
+  font-size: 0.8rem;
+}
+
 .c-content small {
   font-family: var(--primary-font);
   font-size: 1rem;
@@ -416,20 +447,6 @@
 
 .card-has-bg .card-meta {
   color: #26bd75;
-}
-
-.summ-cards .card-body {
-  transition: all 500ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.summ-cards:hover {
-  cursor: pointer;
-  transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.summ-cards:hover .card-body {
-  margin-top: 30px;
-  transition: all 800ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .card .card-img-overlay {
