@@ -56,7 +56,6 @@ button:hover .submit-icon {
   font-family: var(--lato-family);
   display: block;
   border: 0px;
-  font-weight: 300;
   box-shadow: 0px 0px 14px -7px #f7f5f3;
   background-image: linear-gradient(
     45deg,
@@ -90,7 +89,6 @@ button:hover .submit-icon {
   border-radius: 5px;
   display: block;
   border: 0px;
-  font-weight: 300;
   font-family: var(--lato-family);
   box-shadow: 0px 0px 14px -7px #444342;
   background-image: linear-gradient(

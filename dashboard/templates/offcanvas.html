@@ -129,14 +129,14 @@
                     <li class="nav-item nav-category">ESS PORTAL</li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'dashboard' %}" max="1">
-                            <span class="icon-bg"><i class="las la-grip-horizontal nav_icon"></i></span>
+                            <span class="icon-bg"><i class="las la-tachometer-alt nav_icon"></i></span>
                             <span class="menu-title">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="collapse" href="#hr" aria-expanded="false"
                             aria-controls="ui-basic">
-                            <span class="icon-bg"><i class="las la-briefcase"></i></span>
+                            <span class="icon-bg"><i class="las la-user-tie"></i></span>
                             <span class="menu-title">Human Resource</span>
                             <i class="las la-angle-down" id="drops"></i>
                         </a>
@@ -148,9 +148,9 @@
                                 <li class="nav-item"> <a class="nav-link" href="{% url 'training_request' %}"><i
                                             class="las la-arrow-right mr-2"></i>Training Requests</a></li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'pNine' %}"><i
-                                            class="las la-arrow-right mr-2"></i>P9
-                                        Form</a>
+                                    <a class="nav-link" href="{% url 'PayrollDocuments' %}"><i
+                                            class="las la-arrow-right mr-2"></i>Payroll Documents
+                                    </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{% url 'payslip' %}"><i
@@ -162,7 +162,7 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="collapse" href="#fn" aria-expanded="false"
                             aria-controls="ui-basic">
-                            <span class="icon-bg"><i class="las la-briefcase"></i></span>
+                            <span class="icon-bg"><i class="las la-coins"></i></span>
                             <span class="menu-title">Finance</span>
                             <i class="las la-angle-down" id="drops"></i>
                         </a>
@@ -187,7 +187,7 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="collapse" href="#pr" aria-expanded="false"
                             aria-controls="ui-basic">
-                            <span class="icon-bg"><i class="las la-briefcase"></i></span>
+                            <span class="icon-bg"><i class="las la-luggage-cart"></i></span>
                             <span class="menu-title">Procurement</span>
                             <i class="las la-angle-down" id="drops"></i>
                         </a>
@@ -206,8 +206,14 @@
                         </div>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'advance' %}">
+                            <span class="icon-bg"><i class="las la-coins"></i></span>
+                            <span class="menu-title">Salary Advance </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'approve' %}">
-                            <span class="icon-bg"><i class="las la-briefcase"></i></span>
+                            <span class="icon-bg"><i class="las la-thumbs-up"></i></span>
                             <span class="menu-title">Approvals </span>
                         </a>
                     </li>
@@ -246,8 +252,12 @@
             <div class="footer-inner-wraper">
                 <div class="d-sm-flex justify-content-center justify-content-sm-between">
                     <span class="text-dark d-block text-center text-sm-left d-sm-inline-block">Copyright ©
-                        Kenya Medical Practitioners and Dentists Council
-                        {{year}}</span>
+                        Kobby
+                        Technologies Limited <span id="currentYear"></span>
+                    </span>
+                    <script>
+                        document.getElementById("currentYear").innerHTML = new Date().getFullYear();
+                    </script>
                     <p class="text-200"> Powered
                         by <a class="text-danger" href="https://www.kobby.co.ke/" target="_blank"
                             style="text-decoration:none">

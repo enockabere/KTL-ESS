@@ -624,110 +624,59 @@ class TrainingCancelApproval(UserObjectMixins, View):
             logging.exception(e)
             return redirect('TrainingDetail', pk=pk)
 
-class PNineRequest(UserObjectMixins,View):
-    def get(self,request):
+class PayrollDocuments(UserObjectMixins,View):
+    async def get(self,request):
         try:
-            userID = request.session['User_ID']
+            full_name = await sync_to_async(request.session.__getitem__)('full_name')
+            res = []
             
-            Access_Point = config.O_DATA.format("/QyPayrollPeriods")
-            response = self.get_object(Access_Point)
-            res = response['value']
-            
+            async with aiohttp.ClientSession() as session:
+                task_get_closed_payroll_period = asyncio.ensure_future(self.simple_fetch_data(session,
+                            '/QyPayrollPeriods?$filter=Closed%20eq%20true%20and%20Status%20eq%20%27Approved%27')) 
+                response = await asyncio.gather(task_get_closed_payroll_period)          
+                res = [x for x in response[0]]
         except KeyError as e:
-            print(e)
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request, 'Failed, non-200 error')
+            logging.exception(e)
             return redirect('pNine')
-        ctx = {"today": self.todays_date,"full": userID,"res":res}
-        return render(request, "p9.html", ctx)
-    def post(self,request):
-         if request.method == 'POST':
-                try:
-                    nameChars = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
-                            for i in range(5))
-                    employeeNo = request.session['Employee_No_']
-                    startDate = request.POST.get('startDate')[0:4]
-
-                    filenameFromApp = "P9_For_" + str(nameChars) + str(year) + ".pdf"
-                    year = int(startDate)
-                
-                    response = self.zeep_client(request).service.FnGeneratePNine(
-                        employeeNo, filenameFromApp, year)
-                    try:
-                        buffer = BytesIO.BytesIO()
-                        content = base64.b64decode(response)
-                        buffer.write(content)
-                        responses = HttpResponse(
-                            buffer.getvalue(),
-                            content_type="application/pdf",
-                        )
-                        responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
-                        return responses
-                    except:
-                        messages.error(request, "Payslip not found for the selected period")
-                        return redirect('pNine')
-                except Exception as e:
-                    messages.error(request, e)
-                    print(e)
-                    return redirect('pNine')
-
-
-class PayslipRequest(UserObjectMixins,View):
-    def get(self, request):
+        ctx = {
+            "today": self.todays_date,
+            "full": full_name,
+            "res":res
+            }
+        return render(request, "payroll_docs.html", ctx)
+    
+    async def post(self,request):
         try:
-            userID = request.session['User_ID']
-            
-            Access_Point = config.O_DATA.format("/QyPayrollPeriods?$filter=Closed%20eq%20true")
-            response = self.get_object(Access_Point)
-            Payslip = [x for x in response['value']]
+            soap_headers = await sync_to_async(request.session.__getitem__)('soap_headers')
+            employeeNo = await sync_to_async(request.session.__getitem__)('Employee_No_')
+            startDate = request.POST.get('startDate')
+            document_type =int(request.POST.get('document_type'))
 
+            if document_type == 1:
+                paymentPeriod = datetime.strptime(startDate, '%Y-%m-%d').date()
+                filenameFromApp = f"P9_For_{paymentPeriod}.pdf"
+                response = self.make_soap_request(soap_headers,'FnGeneratePayslip',
+                    employeeNo, filenameFromApp, paymentPeriod)
+            elif document_type == 2:
+                year = int(startDate[0:4])
+                filenameFromApp = f"P9_For_{year}.pdf"
+                response = self.make_soap_request(soap_headers,'FnGeneratePNine',
+                    employeeNo, filenameFromApp,year)
+            content = base64.b64decode(response)
+            response = HttpResponse(content, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment;filename={filenameFromApp}'
+            return response
         except KeyError as e:
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
         except Exception as e:
-            messages.error(request, e)
-            print(e)
-            return redirect('payslip')
-                    
-        ctx = {"today": self.todays_date, "full": userID,"res":Payslip}
-        
-        return render(request, "payslip.html", ctx)
-
-    def post(self,request):
-        if request.method == 'POST':
-            try:
-                employeeNo = request.session['Employee_No_']
-                nameChars = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
-                        for i in range(5))
-
-                paymentPeriod = datetime.strptime(
-                    request.POST.get('paymentPeriod'), '%Y-%m-%d').date()
-
-
-                filenameFromApp = "Payslip" + str(paymentPeriod) + str(nameChars) + ".pdf"
-
-                response = self.zeep_client(request).service.FnGeneratePayslip(
-                    employeeNo, filenameFromApp, paymentPeriod)
-                try:
-                    buffer = BytesIO.BytesIO()
-                    content = base64.b64decode(response)
-                    buffer.write(content)
-                    responses = HttpResponse(
-                        buffer.getvalue(),
-                        content_type="application/pdf",
-                    )
-                    responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
-                    return responses
-                except:
-                    messages.error(request, "Payslip not found for the selected period")
-                    return redirect('payslip')
-            except Exception as e:
-                messages.error(request, e)
-                print(e)
-
+            messages.error(request, 'Failed, non-200 error')
+            logging.exception(e)
+            return redirect('PayrollDocuments')
 
 class FnGenerateLeaveReport(UserObjectMixins, View):
     def post(self,request,pk):    

@@ -27,10 +27,8 @@ urlpatterns = [
     path('UploadTrainingAttachment/<str:pk>', views.UploadTrainingAttachment.as_view(),
          name='UploadTrainingAttachment'),
 
-    path('FnAdhocLineDelete/<str:pk>',
-         views.FnAdhocLineDelete.as_view(), name='FnAdhocLineDelete'),
-    path('p9', views.PNineRequest.as_view(), name='pNine'),
-    path('payslip', views.PayslipRequest.as_view(), name='payslip'),
+    path('FnAdhocLineDelete/<str:pk>',views.FnAdhocLineDelete.as_view(), name='FnAdhocLineDelete'),
+    path('PayrollDocuments', views.PayrollDocuments.as_view(), name='PayrollDocuments'),
     
     path('disciplinary',views.Disciplinary,name="disciplinary"),
     path('DisciplineDetails/<str:pk>', views.DisciplineDetail,
