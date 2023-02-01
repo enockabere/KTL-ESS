@@ -3,10 +3,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Gelasio&family=Hind:wght@300&family=Titillium+Web:wght@200&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
 :root {
-  --first-color: #144a85;
+  --first-color: #ff0800;
   --first-color-light: #6c8aaf;
   --green-color: #134326;
-  --red-color: #e51e25;
+  --red-color: #000;
   --sand-tan: #e1b382;
   --dark-color: #444a4a;
   --olive: #a3bcb6;
@@ -96,15 +96,6 @@
   color: var(--dark-color) !important;
 }
 
-.modal-header {
-  background: #134326;
-  color: white;
-}
-
-/* #rap {
-    word-wrap: break-word;
-    word-break: break-all;
-} */
 .table {
   border-collapse: collapse;
   border-radius: 6px;

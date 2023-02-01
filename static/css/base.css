@@ -6,10 +6,10 @@
 :root {
   --header-height: 3rem;
   --nav-width: 76px;
-  --first-color: #144a85;
+  --first-color: #ff0800;
   --first-color-light: #6c8aaf;
-  --green-color: #134326;
-  --green: #25cc88;
+  --green-color: #333;
+  --green: #000;
   --red-color: #e51e25;
   --sand-tan: #e1b382;
   --dark-color: #444a4a;
@@ -225,18 +225,53 @@ input.invalid {
 .drive-item-footer .utilities li:last-child {
   padding-right: 0;
 }
+.modal-body {
+  background: white !important;
+  padding: 1rem;
+}
+.modal-header {
+  border-bottom: none !important;
+  color: #fff !important;
+  background-image: linear-gradient(
+    to left bottom,
+    #ff0800,
+    #050505,
+    #080808,
+    #000,
+    rgb(87, 87, 87)
+  );
+}
+.modal-header {
+  font-family: var(--font1);
+  font-size: 1.4rem;
+}
+.modal-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+}
 
+.modal-header h5 {
+  color: #fff !important;
+}
 #prevBtn {
   background-color: var(--sand-tan);
   font-family: var(--normal-font);
   color: #000;
 }
 .sidebar .nav.sub-menu .nav-item .nav-link.active {
-  color: #44ce42;
+  color: white;
   background: transparent;
 }
 .sidebar .nav.sub-menu .nav-item .nav-link.active:before {
-  color: #44ce42;
+  color: white;
 }
 
 .general-bg {
@@ -261,32 +296,19 @@ input.invalid {
   flex-grow: 1;
 }
 
-.form-label {
-  padding-top: calc(0.94rem + 1px);
-  padding-bottom: calc(0.94rem + 1px);
-  margin-bottom: 0;
-  font-size: inherit;
-  font-family: var(--primary-font);
-  line-height: 1;
-  color: #000;
-}
-
-.form-control,
-.form-select {
-  color: #3f3f3f;
-  background-color: transparent;
-  background-clip: padding-box;
-  border: 1px solid #28a745;
+.form-select,
+.form-control {
+  height: 45px;
   border-radius: 0;
-  font-family: var(--primary-font);
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  padding: 0 20px 0 20px;
+  color: #72728c;
+  font-size: 14px;
+  font-weight: 600;
 }
-
-.form-control:focus {
-  outline: red !important;
-  box-shadow: red !important;
+.form-label {
+  color: #000;
+  font-family: var(--lato-family) !important;
 }
-
 .myForm {
   background: white;
   padding: 1rem;
@@ -755,8 +777,8 @@ ul.tasks::after {
 .accordion-style .btn-link {
   color: #ffffff;
   position: relative;
-  background: var(--green);
-  border: 1px solid var(--green);
+  background: black;
+  border: 1px solid black;
   display: block;
   width: 100%;
   font-size: 18px;
@@ -819,9 +841,9 @@ ul.tasks::after {
   border-top: none;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
-  border-left: 1px solid var(--green);
-  border-right: 1px solid var(--green);
-  border-bottom: 1px solid var(--green);
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
 }
 @media screen and (max-width: 767px) {
   .accordion-style .btn-link {

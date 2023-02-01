@@ -8,6 +8,10 @@ from zeep.transports import Transport
 from requests import Session
 from django.http import HttpResponseRedirect
 import aiohttp
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
+
+session = None
 
 # Create your views here.
 class UserObjectMixins(object):
@@ -53,7 +57,15 @@ class UserObjectMixins(object):
             response = data['value']
             return response
 
-    
+    def make_soap_request(self,soap_headers,endpoint, *params):
+        global session
+        if not session:
+            session = Session()
+            session.auth = HTTPBasicAuth(soap_headers['username'], soap_headers['password'])
+        with ThreadPoolExecutor() as executor:
+            client = Client(config.BASE_URL, transport=Transport(session=session))
+            response = executor.submit(client.service[endpoint], *params).result()
+        return response
     def get_object(self,endpoint):
         response = self.sessions.get(endpoint).json()
         return response

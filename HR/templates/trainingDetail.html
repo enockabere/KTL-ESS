@@ -5,17 +5,18 @@
 <script src="../../../static/css/boot/js/vendor.bundle.base.js"></script>
 <section class="dash2">
     <div class="content-wrapper">
-        <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb shadow-lg  d-flex justify-content-start inner-breadcrumb">
+        <div class="row mb-2">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <ol class="breadcrumb d-flex justify-content-start inner-breadcrumb">
                     <li class="breadcrumb-item">
                         <a href="{% url 'dashboard' %}" class="breadcrumbs text-danger">
                             <i class="fa fa-home"></i>
-                            Home</a>
+                            Home
+                        </a>
                     </li>
                     <li class="breadcrumb-item ">
                         <a href="{% url 'training_request' %}" class="breadcrumbs text-dark">
-                            Training Requests
+                            {{res.Status}} Training Requests
                         </a>
                     </li>
                     <li class="breadcrumb-item "><span class="breadcrumbs text-muted">
@@ -23,25 +24,19 @@
                         </span>
                     </li>
                 </ol>
-            </div>
-        </div>
-        <div class="d-xl-flex justify-content-end align-items-start">
-            <div class="d-sm-flex justify-content-xl-between align-items-center mb-2">
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     {% if res.Adhoc == True and res.Status == "Open"  %}
-                    <button class="btn btn-successs me-md-2" type="button" type="button" data-bs-toggle="modal"
-                        data-bs-target="#staticBackdrop"><i class="las la-plus"></i> Add
-                        Training Lines</button>
+                    <button class="button-88 me-md-2" type="button" type="button" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop"><i class="las la-plus"></i> Add Training Lines</button>
                     {% endif %}
                     {% if res.Status == "Open" %}
-                    <button class="btn btn-successs" type="button" data-bs-toggle="modal" data-bs-target="#Attachment">
+                    <button class="button-88" type="button" data-bs-toggle="modal" data-bs-target="#Attachment">
                         <i class="fas fa-upload mr-1" style="display:inline-block"></i> Upload Attachment</button>
                     {% elif res.Status == "Released" %}
                     <form action="{% url 'FnGenerateTrainingReport' res.Request_No_ %}" method="post"
                         style="display:inline-block">
                         {% csrf_token %}
-                        <button class="btn btn-successs" type="submit"> Generate
-                            Report</button>
+                        <button class="btn btn-successs" type="submit"> Generate Report</button>
                     </form>
                     {% endif %}
                 </div>
@@ -49,206 +44,6 @@
         </div>
         <!--alert -->
         {% include 'alerts.html' %}
-        {% if res.Adhoc == True %}
-        <div class="row my-3">
-            <div class="col-md-4">
-                <div class="card l-bg-cherry statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-file"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Adhoc</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Adhoc}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card l-bg-blue-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-file"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Training Status</h5>
-                        </div>
-                        {% if res.Status == "Open" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-red" role="progressbar" data-width="50%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 50%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Pending Approval" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1" data-height="8" style="height: 8px;">
-                            <div class="progress-bar" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="75"
-                                style="width: 75%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Released" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    Approved
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bars" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 100%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card l-bg-orange-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-times"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Request Date</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0" id="request_date">
-                                    {{res.Request_Date}}
-                                </h2>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="row my-3">
-            <div class="col-md-3">
-                <div class="card l-bg-cherry statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-file"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Adhoc</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Adhoc}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card l-bg-blue-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-file"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Training Status</h5>
-                        </div>
-                        {% if res.Status == "Open" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-red" role="progressbar" data-width="50%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 50%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Pending Approval" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1" data-height="8" style="height: 8px;">
-                            <div class="progress-bar" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="75"
-                                style="width: 75%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Released" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    Approved
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bars" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 100%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card l-bg-green-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Planned Start Date</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0" id="planned_start_date">
-                                    {{res.planned_start_date}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card l-bg-orange-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-times"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">No. Of Days</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.No__Of_Days}}
-                                </h2>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         <div class="row">
             <div class="col-md-12">
                 <div id="accordion" class="accordion-style">
@@ -266,12 +61,27 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <form class="row g-3">
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <label class="form-label">Request Number</label>
                                                 <input type="text" class="form-control"
                                                     placeholder="{{res.Request_No_}}" readonly>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
+                                                <label class="form-label">Adhoc</label>
+                                                <input type="text" class="form-control" placeholder="{{res.Adhoc}}"
+                                                    readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Training Status</label>
+                                                <input type="text" class="form-control" placeholder="{{res.Status}}"
+                                                    readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Request Date</label>
+                                                <input type="text" class="form-control" id="request_date"
+                                                    placeholder="{{res.Request_Date}}" readonly>
+                                            </div>
+                                            <div class="col-md-8">
                                                 <label class="form-label">Designation</label>
                                                 <input type="text" class="form-control"
                                                     placeholder="{{res.Designation}}" readonly>
@@ -291,6 +101,11 @@
                                                 <label class="form-label">Planned End Date</label>
                                                 <input type="text" class="form-control" id="planned_end_date"
                                                     placeholder="{{res.Planned_End_Date}}" readonly>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">No Of Days</label>
+                                                <input type="text" class="form-control"
+                                                    placeholder="{{res.No__Of_Days}}" readonly>
                                             </div>
 
                                             <div class="col-md-4">
@@ -518,9 +333,9 @@
         </div>
         {% endif %}
     </div>
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="staticBackdrop" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">New Training Line
@@ -529,9 +344,9 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="myForm needs-validation" action="{% url 'TrainingDetail' res.Request_No_ %}"
-                        method="post" novalidate>
+                    <form action="{% url 'TrainingDetail' res.Request_No_ %}" method="post" novalidate>
                         {% csrf_token %}
+                        <input type="hidden" name="myAction" value="insert">
                         <div class="row">
                             <div class="col-md-4">
                                 <label class="form-label">Training Course</label>
@@ -550,7 +365,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row" id="travelTypeRow" style="display: none;">
+                        <div class="row my-3" id="travelTypeRow" style="display: none;">
                             <div class="col-md-12">
                                 <label class="form-label">Travel Type</label>
                                 <select class="form-select" name="travelType" id="travelType" disabled>
@@ -574,7 +389,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row" id="ForegnDestinationsRow" style="display:none">
+                        <div class="row my-3" id="ForegnDestinationsRow" style="display:none">
                             <div class="col-md-12">
                                 <label class="form-label">Foreign Destination</label>
                                 <select class="form-select myDestinations" name="destination" id="destinationsForeign"
@@ -587,20 +402,20 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row my-2 OtherDestinationRow" style="display:none">
+                        <div class="row my-3 OtherDestinationRow" style="display:none">
                             <div class="col-md-12">
                                 <label class="form-label">Other Destination</label>
                                 <input type="text" class="form-control" name="OtherDestinationName"
                                     id="OtherDestinationName" disabled>
                             </div>
                         </div>
-                        <div class="row" id="venueRow" style="display: none">
+                        <div class="row my-3" id="venueRow" style="display: none">
                             <div class="col-md-12">
                                 <label for="" class="form-label">Venue</label>
                                 <input type="text" class="form-control" name="venue" id="venue" disabled>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-12">
@@ -624,20 +439,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label class="form-label">Sponsor Type</label>
-                                <select class="form-select" name="sponsor" required>
-                                    <option selected disabled value="0">Select </option>
-                                    <option value="1">Self Sponsored</option>
-                                    <option value="2">Organization Sponsored</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
+                        <div class="row my-3">
+                            <div class="col-md-6">
                                 <label for="" class="form-label">Provider</label>
                                 <input type="text" class="form-control" name="provider" required>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="" class="form-label">Training Cost</label>
                                 <input type="text" class="form-control" name="trainingCost" placeholder="00.00">
                             </div>
@@ -648,7 +455,8 @@
                                 <textarea class="form-control" name="trainingObjectives" rows="3" required></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success my-3 w-100">Submit</button>
+                        <button type="submit" class="button-87 my-2">Submit <i
+                                class="las la-arrow-right submit-icon"></i></button>
                     </form>
                 </div>
             </div>
@@ -659,36 +467,28 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Upload Attachment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title">Upload <i class="las la-cloud-upload-alt"></i> Training Attachment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'UploadTrainingAttachment' res.Request_No_ %}" method="post" class="myForm"
+                    <form action="{% url 'UploadTrainingAttachment' res.Request_No_ %}" method="post"
                         enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class=" mb-3">
                             <label class="form-label">Attachments</label>
                             <input class="form-control" name="attachment" type="file" multiple>
                         </div>
-
+                        <button type="submit" class="button-88">Submit <i
+                                class="las la-arrow-right submit-icon"></i></button>
+                    </form>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-                </form>
             </div>
         </div>
     </div>
 </section>
 <script>
     $(document).ready(function () {
-        $("#request_date")
-            .empty().append(moment(
-                    '{{res.Request_Date}}', "YYYY-MM-DD")
-                .format(
-                    'Do MMM YYYY'));
         $("#planned_start_date")
             .empty().append(moment(
                     '{{res.planned_start_date}}', "YYYY-MM-DD")
@@ -697,6 +497,10 @@
         $("#planned_end_date").attr("placeholder", moment(
             '{{res.Planned_End_Date}}', "YYYY-MM-DD").format(
             'Do MMM YYYY')).val("").focus().blur();
+        $("#request_date").attr("placeholder", moment(
+            '{{res.Request_Date}}', "YYYY-MM-DD").format(
+            'Do MMM YYYY')).val("").focus().blur();
+
 
         $('#travelType').on('change', function () {
             if (this.value == "1") {

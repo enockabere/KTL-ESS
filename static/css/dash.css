@@ -5,9 +5,9 @@
 
 :root {
   --header-height: 3rem;
-  --first-color: #144a85;
+  --first-color: #ff0800;
   --first-color-light: #6c8aaf;
-  --green-color: #25cc88;
+  --green-color: #000;
   --red-color: #e51e25;
   --sand-tan: #e1b382;
   --dark-color: #444a4a;
@@ -37,6 +37,83 @@
 }
 .olive_icon {
   background-color: var(--olive);
+}
+.submit-icon {
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover .submit-icon {
+  transform: translateX(10px);
+}
+/* CSS */
+.button-87 {
+  padding: 10px 20px;
+  text-align: center;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  border-radius: 5px;
+  font-family: var(--lato-family);
+  display: block;
+  border: 0px;
+  font-weight: 300;
+  box-shadow: 0px 0px 14px -7px #f7f5f3;
+  background-image: linear-gradient(
+    45deg,
+    #ff0800 0%,
+    #111111 51%,
+    #ff512f 100%
+  );
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-87:hover {
+  background-position: right center;
+  color: #fff;
+  text-decoration: none;
+}
+
+.button-87:active {
+  transform: scale(0.95);
+}
+
+.button-88 {
+  padding: 10px 20px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  border-radius: 5px;
+  display: block;
+  border: 0px;
+  font-weight: 300;
+  font-family: var(--lato-family);
+  box-shadow: 0px 0px 14px -7px #444342;
+  background-image: linear-gradient(
+    45deg,
+    #ff0800 0%,
+    #0f0f0f 51%,
+    #161616 100%
+  );
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-88:hover {
+  background-position: right center;
+  /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+
+.button-88:active {
+  transform: scale(0.95);
 }
 .smalls a {
   font-size: 0.9rem;
@@ -527,15 +604,13 @@
   transform: translate(0, 5%);
 }
 .table-tabs .nav-link {
-  background: var(--olive) !important;
-  border: none !important;
+  background: var(--white-color) !important;
   font-family: var(--lato-family);
 }
 .table-tabs .nav-link.active,
 .table-tabs .nav-link:focus,
 .table-tabs .nav-link:hover {
   background-color: black !important;
-  border: none !important;
   color: #fff !important;
   font-family: var(--lato-family);
 }

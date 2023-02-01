@@ -30,6 +30,11 @@ class Login(UserObjectMixins,View):
                         await sync_to_async(request.session.__setitem__)('User_Responsibility_Center', data['User_Responsibility_Center'])
                         await sync_to_async(request.session.__setitem__)('HOD_User', data['HOD_User'])
                         await sync_to_async(request.session.__setitem__)('password', password)
+                        soap_headers = {
+                            "username":data['User_ID'],
+                            "password":password
+                        }
+                        await sync_to_async(request.session.__setitem__)('soap_headers', soap_headers)
                         await sync_to_async(request.session.save)()
                         
                         Employee_No_ = await sync_to_async(request.session.__getitem__)('Employee_No_')
@@ -41,6 +46,7 @@ class Login(UserObjectMixins,View):
                     
                         for data in employee_response[0]['data']:  #type:ignore
                             await sync_to_async(request.session.__setitem__)('full_name', data['First_Name'] + " " + data['Last_Name'] )
+                            await sync_to_async(request.session.save)()
                             messages.success(request,f"Success. Logged in as {request.session['full_name']}")
                             return redirect('dashboard')
                 messages.error(request,"Authentication Error: Invalid credentials")

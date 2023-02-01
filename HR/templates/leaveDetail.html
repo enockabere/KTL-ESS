@@ -387,7 +387,7 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'LeaveDetail' res.Application_No %}" method="post" class="myForm"
+                    <form action="{% url 'LeaveDetail' res.Application_No %}" method="post"
                         enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class=" mb-3">
