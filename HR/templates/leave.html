@@ -3,32 +3,62 @@
 LEAVE REQUEST
 {% endblock %}
 {% block head %}
+<style>
+    .chat-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #eb2c13;
+        color: #fff;
+        font-size: 30px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
 
+    .chat-card {
+        display: none;
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 300px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+        padding: 10px;
+        margin-left: -.7rem;
+        margin-right: -.7rem;
+        background-color: #c3c6c9;
+        color: #fff;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        color: #fff;
+        font-size: 20px;
+        background: none;
+        border: none;
+        outline: none;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+</style>
 {% endblock %}
 {% block main %}
 <script src="../../../static/css/boot/js/vendor.bundle.base.js"></script>
 <section class="dash2">
     <div class="content-wrapper general-bg" style="padding-bottom: 5rem;">
-        <!-- <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb d-flex justify-content-start inner-breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'dashboard' %}" class="breadcrumbs text-danger">
-                            <i class="fa fa-home"></i>
-                            Home
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <span class="breadcrumbs text-muted">
-                            Leave Request
-                        </span>
-                    </li>
-                </ol>
-            </div>
-        </div> -->
-
-
-        <!--alert -->
         {% include 'alerts.html' %}
         <div class="row my-2">
             <div class="col-md-12">
@@ -75,45 +105,52 @@ LEAVE REQUEST
                                         style="width:100%">
                                         <thead>
                                             <tr id="tops">
-                                                <th id="long">Application No.</th>
-                                                <th>Status</th>
-                                                <th>Planner Start Date</th>
-                                                <th>Return same day</th>
-                                                <th>Days Applied</th>
+                                                <th id="long">Leave No.</th>
+                                                <th>Leave Type</th>
+                                                <th>Start Date</th>
+                                                <th>Resumption Date</th>
+                                                <th>Reliever</th>
                                                 <th>Action</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for res in response %}
                                             <tr>
                                                 <td>{{res.Application_No.}}</td>
-                                                <td id="rap">{{res.Status}}</td>
-                                                <td id="approved_planner_start_date{{res.Application_No}}">
-                                                    {{res.Planner_Start_Date}}</td>
+                                                <td>{{res.Leave_Code}}</td>
+                                                <td id="Start_Date{{res.Application_No}}">
+                                                    {{res.Start_Date}}
+                                                </td>
+                                                <td id="Resumption_Date{{res.Application_No}}">
+                                                    {{res.Resumption_Date}}
+                                                </td>
+
                                                 <script>
                                                     $(document).ready(function () {
-                                                        $("#approved_planner_start_date{{res.Application_No}}")
+                                                        $("#Start_Date{{res.Application_No}}")
                                                             .empty().append(moment(
-                                                                    '{{res.Planner_Start_Date}}', "YYYY-MM-DD")
+                                                                    '{{res.Start_Date}}', "YYYY-MM-DD")
+                                                                .format(
+                                                                    'Do MMM YYYY'));
+                                                        $("#Resumption_Date{{res.Application_No}}")
+                                                            .empty().append(moment(
+                                                                    '{{res.Resumption_Date}}', "YYYY-MM-DD")
                                                                 .format(
                                                                     'Do MMM YYYY'));
                                                     })
                                                 </script>
                                                 <td>
-                                                    {% if res.Return_same_day == True %}
-                                                    <img src="../../static/icons/check-mark.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% elif res.Return_same_day == False %}
-                                                    <img src="../../static/icons/cancel.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% endif %}
+                                                    {{res.Staff_Name_Relievers}}
                                                 </td>
-                                                <td>{{res.Days_Applied}}</td>
                                                 <td>
                                                     <a href="{% url 'LeaveDetail' res.Application_No %} "
                                                         class="btn btn-success btn-icon-text" type="button"
                                                         data-toggle="tooltip" data-placement="top"
                                                         title="Click to View"> View <i class="far fa-eye"></i></a>
+                                                </td>
+                                                <td>
+                                                    {{res.Status}}
                                                 </td>
                                             </tr>
                                             {% endfor %}
@@ -129,46 +166,48 @@ LEAVE REQUEST
                                         style="width:100%">
                                         <thead>
                                             <tr id="tops">
-                                                <th id="long">Application No.</th>
-                                                <th>Status</th>
-                                                <th>Planner Start Date</th>
-                                                <th>Return same day</th>
-                                                <th>Days Applied</th>
+                                                <th id="long">Leave No.</th>
+                                                <th>Leave Type</th>
+                                                <th>Start Date</th>
+                                                <th>Resumption Date</th>
+                                                <th>Reliever</th>
                                                 <th>Action</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for res in pending %}
                                             <tr>
                                                 <td>{{res.Application_No}}</td>
-                                                <td id="rap">{{res.Status}}</td>
-                                                <td id='pending_planner_start_date{{res.Application_No}}'>
-                                                    {{res.Planner_Start_Date}}</td>
+                                                <td>{{res.Leave_Code}}</td>
+                                                <td id='pending_Start_Date{{res.Application_No}}'>
+                                                    {{res.Start_Date}}</td>
+                                                <td id="pending_Resumption_Date{{res.Application_No}}">
+                                                    {{res.Resumption_Date}}</td>
                                                 <script>
                                                     $(document).ready(function () {
-                                                        $("#pending_planner_start_date{{res.Application_No}}")
+                                                        $("#pending_Start_Date{{res.Application_No}}")
                                                             .empty().append(moment(
-                                                                    '{{res.Planner_Start_Date}}', "YYYY-MM-DD")
+                                                                    '{{res.Start_Date}}', "YYYY-MM-DD")
+                                                                .format(
+                                                                    'Do MMM YYYY'));
+                                                        $("#pending_Resumption_Date{{res.Application_No}}")
+                                                            .empty().append(moment(
+                                                                    '{{res.Resumption_Date}}', "YYYY-MM-DD")
                                                                 .format(
                                                                     'Do MMM YYYY'));
                                                     })
                                                 </script>
                                                 <td>
-                                                    {% if res.Return_same_day == True %}
-                                                    <img src="../../static/icons/check-mark.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% elif res.Return_same_day == False %}
-                                                    <img src="../../static/icons/cancel.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% endif %}
+                                                    {{res.Staff_Name_Relievers}}
                                                 </td>
-                                                <td>{{res.Days_Applied}}</td>
                                                 <td>
                                                     <a href="{% url 'LeaveDetail' res.Application_No %} "
                                                         class="btn btn-success btn-icon-text" type="button"
                                                         data-toggle="tooltip" data-placement="top"
                                                         title="Click to View"> View <i class="far fa-eye"></i></a>
                                                 </td>
+                                                <td>{{res.Status}}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -182,12 +221,13 @@ LEAVE REQUEST
                                         style="width:100%">
                                         <thead>
                                             <tr id="tops">
-                                                <th id="long">Application No.</th>
-                                                <th>Status</th>
-                                                <th>Planner Start Date</th>
-                                                <th>Return same day</th>
-                                                <th>Days Applied</th>
+                                                <th id="long">Leave No.</th>
+                                                <th>Leave Type</th>
+                                                <th>Start Date</th>
+                                                <th>Resumption Date</th>
+                                                <th>Reliever</th>
                                                 <th>Action</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -195,36 +235,36 @@ LEAVE REQUEST
                                             {% if res.Rejected_By_Approver == True and res.Status == 'Open' %}
                                             <tr style="background: #fee36e !important;">
                                                 <td>{{res.Application_No}}</td>
-                                                <td id="rap">{{res.Status}}</td>
-                                                <td id="rejected_planner_start_date{{res.Application_No}}">
-                                                    {{res.Planner_Start_Date}}</td>
+                                                <td>{{res.Leave_Code}}</td>
+                                                <td id="rejected_Start_Date{{res.Application_No}}">
+                                                    {{res.Start_Date}}</td>
+                                                <td id="rejected_Resumption_Date{{res.Application_No}}">
+                                                    {{res.Resumption_Date}}</td>
                                                 <script>
                                                     $(document).ready(function () {
-                                                        $("#rejected_planner_start_date{{res.Application_No}}")
+                                                        $("#rejected_Start_Date{{res.Application_No}}")
                                                             .empty().append(moment(
-                                                                    '{{res.Planner_Start_Date}}', "YYYY-MM-DD")
+                                                                    '{{res.Start_Date}}', "YYYY-MM-DD")
+                                                                .format(
+                                                                    'Do MMM YYYY'));
+                                                        $("#rejected_Resumption_Date{{res.Application_No}}")
+                                                            .empty().append(moment(
+                                                                    '{{res.Resumption_Date}}', "YYYY-MM-DD")
                                                                 .format(
                                                                     'Do MMM YYYY'));
                                                     })
                                                 </script>
                                                 <td>
-                                                    {% if res.Return_same_day == True %}
-                                                    <img src="../../static/icons/check-mark.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% elif res.Return_same_day == False %}
-                                                    <img src="../../static/icons/cancel.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% endif %}
+                                                    {{res.Staff_Name_Relievers}}
                                                 </td>
-                                                <td>{{res.Days_Applied}}</td>
                                                 <td>
-                                                    <button class="btn btn-primary" data-toggle="tooltip"
+                                                    <!-- <button class="btn btn-primary" data-toggle="tooltip"
                                                         data-placement="top" title="edit" data-bs-toggle="modal"
                                                         data-bs-target="#editLeave{{res.Application_No}}">Edit <i
                                                             class="fas fa-edit"></i>
-                                                    </button>
+                                                    </button> -->
                                                     <a href="{% url 'LeaveDetail' res.Application_No %} "
-                                                        class="btn btn-success btn-icon-text" type="button"
+                                                        class="btn btn-primary btn-icon-text" type="button"
                                                         data-toggle="tooltip" data-placement="top" title="View"> View <i
                                                             class="far fa-eye"></i>
                                                     </a>
@@ -372,38 +412,39 @@ LEAVE REQUEST
                                                         </div>
                                                     </div>
                                                 </td>
+                                                <td>{{res.Status}}</td>
                                             </tr>
                                             {% else %}
                                             <tr>
                                                 <td>{{res.Application_No}}</td>
-                                                <td id="rap">{{res.Status}}</td>
-                                                <td id="open_planner_start_date{{res.Application_No}}">
-                                                    {{res.Planner_Start_Date}}</td>
+                                                <td>{{res.Status}}</td>
+                                                <td id="open_Start_Date{{res.Application_No}}">
+                                                    {{res.Start_Date}}</td>
+                                                <td id="open_Resumption_Date{{res.Application_No}}">
+                                                    {{res.Resumption_Date}}</td>
                                                 <script>
                                                     $(document).ready(function () {
-                                                        $("#open_planner_start_date{{res.Application_No}}")
+                                                        $("#open_Start_Date{{res.Application_No}}")
                                                             .empty().append(moment(
-                                                                    '{{res.Planner_Start_Date}}', "YYYY-MM-DD")
+                                                                    '{{res.Start_Date}}', "YYYY-MM-DD")
+                                                                .format(
+                                                                    'Do MMM YYYY'));
+                                                        $("#open_Resumption_Date{{res.Application_No}}")
+                                                            .empty().append(moment(
+                                                                    '{{res.Resumption_Date}}', "YYYY-MM-DD")
                                                                 .format(
                                                                     'Do MMM YYYY'));
                                                     })
                                                 </script>
                                                 <td>
-                                                    {% if res.Return_same_day == True %}
-                                                    <img src="../../static/icons/cancel.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% elif res.Return_same_day == False %}
-                                                    <img src="../../static/icons/cancel.png" height="10" width="10"
-                                                        class="img-fluid" alt="icon">
-                                                    {% endif %}
+                                                    {{res.Staff_Name_Relievers}}
                                                 </td>
-                                                <td>{{res.Days_Applied}}</td>
                                                 <td>
-                                                    <button class="btn btn-primary" data-toggle="tooltip"
+                                                    <!-- <button class="btn btn-primary" data-toggle="tooltip"
                                                         data-placement="top" title="edit" data-bs-toggle="modal"
                                                         data-bs-target="#editLeaves{{res.Application_No}}">Edit <i
                                                             class="fas fa-edit"></i>
-                                                    </button>
+                                                    </button> -->
                                                     <a href="{% url 'LeaveDetail' res.Application_No %} "
                                                         class="btn btn-success btn-icon-text" type="button"
                                                         data-toggle="tooltip" data-placement="top" title="View"> View <i
@@ -546,6 +587,7 @@ LEAVE REQUEST
                                                         </div>
                                                     </div>
                                                 </td>
+                                                <td>{{res.Status}}</td>
                                             </tr>
                                             {% endif %}
                                             {% endfor %}
@@ -557,6 +599,18 @@ LEAVE REQUEST
                     </div>
                 </div>
             </div>
+            <button class="btn-floating chat-btn"><i class="las la-hand-pointer"></i></button>
+            <div class="chat-card">
+                <div class="card-header">
+                    <button class="close-btn">&times;</button>
+                    <h4>{{full}} Leave Stats</h4>
+                </div>
+                <div class="card-body">
+                    <P>Leave Balance: <span class="leave_balance"></span></P>
+                    <P>Leave Taken: <span>0</span></P>
+                </div>
+            </div>
+
         </div>
     </div>
     <!--Create leave Modal -->
@@ -565,7 +619,9 @@ LEAVE REQUEST
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Raise Leave Request
+                    <h5 class="modal-title" id="staticBackdropLabel">New Leave Request (
+                        <span class="text-small">Current Bal:</span><span
+                            class="leave_balance text-info text-small mx-2"></span>)
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -590,7 +646,7 @@ LEAVE REQUEST
                             <div class="row my-3">
                                 <div class="col-md-12">
                                     <label for="" class="form-label">Leave Start Date</label>
-                                    <input type="date" class="form-control" name="plannerStartDate" id="LeaveStartDate">
+                                    <input type="date" class="form-control" name="plannerStartDate" id="start-date">
                                 </div>
                             </div>
                             <div class="row">
@@ -610,7 +666,7 @@ LEAVE REQUEST
                                         disabled>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row my-3">
                                 <div class="col-md-12">
                                     <label class="form-label"> Select
                                         Reliever </label>
@@ -630,7 +686,7 @@ LEAVE REQUEST
                                     </select>
                                 </div>
                             </div>
-                            <button type="submit" class="button-88">Submit <i
+                            <button type="submit" class="btn button-88 my-3 w-100 leave_submit">Submit <i
                                     class="las la-arrow-right submit-icon"></i></button>
                         </div>
                     </form>
@@ -645,6 +701,32 @@ LEAVE REQUEST
     });
 
     $(document).ready(function () {
+        $.ajax({
+            type: 'POST',
+            url: '{% url "FnLeaveBalances" %}',
+            data: {
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function (response) {
+                $(".leave_balance")
+                    .empty().append(response);
+                if (response === 0) {
+                    $('.leave_submit').prop('disabled', true).text('0 leave balance');
+                    $('.leave_submit').removeClass('button-88');
+                    $('.leave_submit').addClass('btn-warning');
+                } else {
+                    $('.leave_submit').prop('disabled', false).text('Submit');
+                }
+            },
+            error: function (response) {
+                console.log('Error');
+            },
+        });
+        // Get today's date
+        let today = new Date().toISOString().split('T')[0];
+        // Set the minimum allowed date for the input
+        document.getElementById("start-date").min = today;
+
         $('#isReturnSameDay').on('change', function () {
             if (this.value == "False") {
                 $('#daysAppliedRow').show(1000)
@@ -668,6 +750,28 @@ LEAVE REQUEST
             }
         });
     })
+
+    const chatBtn = document.querySelector('.chat-btn');
+    const chatCard = document.querySelector('.chat-card');
+    const closeBtn = document.querySelector('.close-btn');
+
+    // show chat card after 5 seconds
+    setTimeout(() => {
+        chatCard.style.display = 'block';
+        // hide chat card after 4 seconds
+        setTimeout(() => {
+            chatCard.style.display = 'none';
+        }, 4000);
+    }, 5000);
+
+    chatBtn.addEventListener('click', () => {
+        chatCard.style.display = 'block';
+        openSound.play();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatCard.style.display = 'none';
+    });
 </script>
 
 {% endblock %}

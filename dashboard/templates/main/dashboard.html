@@ -319,6 +319,35 @@ DASHBOARD
     </div>
 </section>
 
-
-
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "{% url 'Leave_Notification' %}",
+            type: 'GET',
+            data: {
+                status: 'approved',
+            },
+            success: function (response) {
+                for (var i = 0; i < response['notification'].length; i++) {
+                    iziToast.show({
+                        theme: 'dark',
+                        icon: 'las la-user',
+                        title: 'FYI',
+                        message: response['notification'][i]['Employee_Name'] +
+                            ' will be on leave from tomorrow',
+                        position: 'topRight',
+                        progressBarColor: 'rgb(0, 255, 184)',
+                        onOpening: function (instance, toast) {
+                            instance.style.top = "200px";
+                            console.info('callback abriu!');
+                        },
+                        onClosing: function (instance, toast, closedBy) {
+                            console.info('closedBy: ' + closedBy);
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

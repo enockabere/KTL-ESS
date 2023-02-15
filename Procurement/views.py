@@ -1,5 +1,6 @@
 import base64
 from ctypes.wintypes import PHKEY
+import logging
 from django.shortcuts import render, redirect
 from datetime import  datetime
 import requests
@@ -33,9 +34,8 @@ class UserObjectMixin(object):
 class PurchaseRequisition(UserObjectMixins,View):
     def get(self,request):
         try:
-            userID = request.session['User_ID']
-            year = request.session['years']
             empNo = request.session['Employee_No_']
+            full_name =request.session['full_name']
 
             response = self.one_filter("/QyPurchaseRequisitionHeaders","Employee_No_","eq",empNo)
             openPurchase = [x for x in response[1] if x['Status'] == 'Open']
@@ -43,55 +43,56 @@ class PurchaseRequisition(UserObjectMixins,View):
             Approved = [x for x in response[1] if x['Status'] == 'Released']
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('auth')
         except KeyError as e:
-            print(e)
-            messages.info(request, e)
+            logging.exception(e)
+            messages.error(request, 'Failed, 201-denied')
             return redirect('auth')
         
 
         ctx = {
             "today": self.todays_date, "res": openPurchase,
-            "response": Approved,"pending": Pending, "year": year,
-            "full": userID
+            "response": Approved,"pending": Pending,
+            "full": full_name
             }
     
         return render(request, 'purchaseReq.html', ctx)
     def post(self, request):
-        if request.method == 'POST':
-            try:
-                requisitionNo = request.POST.get('requisitionNo')
-                myUserId = request.session['User_ID']
-                employeeNo = request.session['Employee_No_']
-                orderDate = datetime.strptime(
-                    request.POST.get('orderDate'), '%Y-%m-%d').date()
-                myAction = request.POST.get('myAction')
-            
-            
-                response = self.zeep_client(request).service.FnPurchaseRequisitionHeader(
-                    requisitionNo, orderDate, employeeNo, myUserId, myAction)
-                if response !=False:
-                    messages.success(request,"Success")
-                    return redirect('PurchaseDetail', pk=response)
-                messages.error(request,response)
+        try:
+            requisitionNo = request.POST.get('requisitionNo')
+            myUserId = request.session['User_ID']
+            employeeNo = request.session['Employee_No_']
+            orderDate = datetime.strptime(
+                request.POST.get('orderDate'), '%Y-%m-%d').date()
+            myAction = request.POST.get('myAction')
+        
+        
+            response = self.zeep_client(request).service.FnPurchaseRequisitionHeader(
+                requisitionNo, orderDate, employeeNo, myUserId, myAction)
+            if response !='0':
+                messages.success(request,"Success")
                 return redirect('PurchaseDetail', pk=response)
-            except KeyError:
-                messages.info(request, "Session Expired. Please Login")
-                return redirect('auth')
-            except Exception as e:
-                messages.info(request, e)
-                print(e)
+            if response =='0':
+                messages.error(request,'Failed, 201 denied')
                 return redirect('purchase')
-        return redirect('purchase')
+        except KeyError:
+            messages.info(request, "Session Expired. Please Login")
+            return redirect('auth')
+        except Exception as e:
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
+            return redirect('purchase')
 
 class PurchaseRequestDetails(UserObjectMixins,View):
     def get(self, request,pk):
         try:
-            Dpt = request.session['Department']
+            Dpt = request.session['User_Responsibility_Center']
             empNo = request.session['Employee_No_']
-            myUserId = request.session['User_ID']
+            plan_item = []
+            full_name = request.session['full_name']
+            res ={}
 
             response = self.double_filtered_data("/QyPurchaseRequisitionHeaders","No_","eq",pk,"and",
                                                     "Employee_No_","eq",empNo)
@@ -101,8 +102,8 @@ class PurchaseRequestDetails(UserObjectMixins,View):
             res_approver = self.one_filter("/QyApprovalEntries","Document_No_","eq",pk)
             Approvers = [x for x in res_approver[1]]
 
-            Res_Proc = self.one_filter("/QyProcurementPlans","Shortcut_Dimension_2_Code","eq",Dpt)
-            planitem = [x for x in Res_Proc[1]]
+            # Res_Proc = self.one_filter("/QyProcurementPlans","Shortcut_Dimension_2_Code","eq",Dpt)
+            # plan_item = [x for x in Res_Proc[1]]
 
             itemNo = config.O_DATA.format("/QyItems")
             Res_itemNo = self.get_object(itemNo)
@@ -122,19 +123,19 @@ class PurchaseRequestDetails(UserObjectMixins,View):
             Comments = [x for x in RejectedResponse[1]]
  
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('purchase')
         except KeyError as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
 
         ctx = {
             "today": self.todays_date, "res": res, "line": openLines,
-             "Approvers": Approvers,"plans": planitem, "items": Items,
+             "Approvers": Approvers,"plans": plan_item, "items": Items,
             "gl": Gl_Accounts,"file":allFiles,"Comments":Comments,
-            "full":myUserId
+            "full":full_name
             }
         return render(request, 'purchaseDetail.html', ctx)
     def post(self, request,pk):
@@ -171,8 +172,8 @@ class PurchaseRequestDetails(UserObjectMixins,View):
                 messages.info(request, "Session Expired. Please Login")
                 return redirect('auth')
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('PurchaseDetail', pk=pk)
         return redirect('PurchaseDetail', pk=pk)
 
@@ -194,7 +195,7 @@ def RequisitionCategory(request):
             Asset_res = session.get(Assets, timeout=10).json()
             return JsonResponse(Asset_res)
     except  Exception as e:
-        print(e)
+        logging.exception(e)
     return redirect('purchase') 
 
 
@@ -213,8 +214,8 @@ class  PurchaseApproval(UserObjectMixins, View):
                 messages.error(request, response)
                 return redirect('PurchaseDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('PurchaseDetail', pk=pk)
         return redirect('PurchaseDetail', pk=pk)
 
@@ -238,8 +239,8 @@ class UploadPurchaseAttachment(UserObjectMixins, View):
                 messages.error(request, "Failed, try Again")
                 return redirect('PurchaseDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         return redirect('PurchaseDetail', pk=pk)
 
 class DeletePurchaseAttachment(UserObjectMixins,View):
@@ -256,8 +257,8 @@ class DeletePurchaseAttachment(UserObjectMixins,View):
                 messages.success(request, "Deleted Successfully ")
                 return redirect('PurchaseDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         return redirect('PurchaseDetail', pk=pk)
 
 
@@ -277,8 +278,8 @@ class FnCancelPurchaseApproval(UserObjectMixins, View):
                 messages.info(request, "Session Expired. Please Login")
                 return redirect('auth')
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('PurchaseDetail', pk=pk)
         return redirect('PurchaseDetail', pk=pk)
 
@@ -301,8 +302,8 @@ class FnGeneratePurchaseReport(UserObjectMixins, View):
                 responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
                 return responses
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('PurchaseDetail', pk=pk)
         return redirect('PurchaseDetail', pk=pk)
 
@@ -320,8 +321,8 @@ class FnDeletePurchaseRequisitionLine(UserObjectMixins, View):
                 messages.error(request, response)
                 return redirect('PurchaseDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('PurchaseDetail', pk=pk)
         return redirect('PurchaseDetail', pk=pk)
 
@@ -330,7 +331,7 @@ class RepairRequest(UserObjectMixins,View):
     def get(self, request):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
 
             response = self.one_filter("/QyRepairRequisitionHeaders","Requested_By","eq",userID)
             openRepair = [x for x in response[1] if x['Status'] == 'Open']
@@ -338,7 +339,7 @@ class RepairRequest(UserObjectMixins,View):
             Approved = [x for x in response[1] if x['Status'] == 'Released']
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('auth')
         except KeyError:
@@ -346,7 +347,7 @@ class RepairRequest(UserObjectMixins,View):
             return redirect('auth')
 
         ctx = {"today": self.todays_date, "res": openRepair, "response": Approved,
-            "year": year, "full": userID,"pending": Pending}
+            "full": full_name,"pending": Pending}
         
         return render(request, 'repairReq.html', ctx)
     def post(self, request):
@@ -371,8 +372,8 @@ class RepairRequest(UserObjectMixins,View):
                 messages.info(request, "Session Expired. Please Login")
                 return redirect('auth')
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('repair')
         return redirect('repair')
 
@@ -381,7 +382,8 @@ class RepairRequestDetails(UserObjectMixin,View):
         try:
             empNo = request.session['Employee_No_']
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
+            res = {}
 
             Access_Point = config.O_DATA.format(f"/QyRepairRequisitionHeaders?$filter=No_%20eq%20%27{pk}%27%20and%20Requested_By%20eq%20%27{userID}%27")
             response = self.get_object(Access_Point)
@@ -409,15 +411,15 @@ class RepairRequestDetails(UserObjectMixin,View):
             Comments = [x for x in RejectedResponse['value']]
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('repair')
         except KeyError:
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
         ctx = {"res": res,"line": openLines,"Approvers": Approvers,
-            "asset": my_asset, "full": userID,
-            "year": year,"file":allFiles,"Comments":Comments}
+            "asset": my_asset, "full": full_name,
+            "file":allFiles,"Comments":Comments}
         return render(request, 'repairDetail.html', ctx)
     def post(self, request,pk):
         if request.method == 'POST':
@@ -456,11 +458,11 @@ class RepairRequestDetails(UserObjectMixin,View):
                                 messages.error(request, "Failed, Try Again")
                                 return redirect('RepairDetail', pk=pk)
                         except Exception as e:
-                            messages.error(request, e)
-                            print(e)
+                            messages.error(request,'Failed, 201 denied')
+                            logging.exception(e)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('RepairDetail', pk=pk)
         return redirect('RepairDetail', pk=pk)
 
@@ -486,8 +488,8 @@ def RepairApproval(request, pk):
             print(response)
             return redirect('RepairDetail', pk=pk)
         except Exception as e:
-            messages.info(request, e)
-            print(e)
+            messages.error(request, 'Failed, 201-denied')
+            logging.exception(e)
             return redirect('RepairDetail', pk=pk)
     return redirect('RepairDetail', pk=pk)
 
@@ -507,8 +509,8 @@ def FnCancelRepairApproval(request, pk):
             print(response)
             return redirect('RepairDetail', pk=pk)
         except Exception as e:
-            messages.info(request, e)
-            print(e)
+            messages.error(request, 'Failed, 201-denied')
+            logging.exception(e)
             return redirect('RepairDetail', pk=pk)
     return redirect('RepairDetail', pk=pk)
 
@@ -524,8 +526,8 @@ def DeleteRepairAttachment(request,pk):
                 messages.success(request, "Deleted Successfully ")
                 return redirect('RepairDetail', pk=pk)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
     return redirect('RepairDetail', pk=pk)
 
 
@@ -539,8 +541,8 @@ def FnDeleteRepairRequisitionLine(request, pk):
             messages.success(request, "Successfully Deleted")
             print(response)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('RepairDetail', pk=pk)
     return redirect('RepairDetail', pk=pk)
 
@@ -562,16 +564,16 @@ def FnGenerateRepairReport(request, pk):
             responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
             return responses
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('RepairDetail', pk=pk)
     return redirect('RepairDetail', pk=pk)
 
-class StoreRequest(UserObjectMixin,View):
+class StoreRequest(UserObjectMixins,View):
     def get(self, request):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
 
             Access_Point = config.O_DATA.format(f"/QyStoreRequisitionHeaders?$filter=Requested_By%20eq%20%27{userID}%27")
             response = self.get_object(Access_Point)
@@ -584,7 +586,7 @@ class StoreRequest(UserObjectMixin,View):
             pend = len(Pending)
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('auth')
         except KeyError:
@@ -594,41 +596,36 @@ class StoreRequest(UserObjectMixin,View):
         ctx = {"today": self.todays_date, "res": openStore,
             "count": counts, "response": Approved,
             "counter": counter,"pend": pend, "pending": Pending,
-            "full": userID, "year": year}
+            "full": full_name}
         return render(request, 'storeReq.html', ctx)
     def post(self, request):
-        if request.method == 'POST':
-            try:
-                requisitionNo = request.POST.get('requisitionNo')
-                reason = request.POST.get('reason')
-                myAction = request.POST.get('myAction')
-                myUserId = request.session['User_ID']
-                employeeNo = request.session['Employee_No_']
-            except ValueError:
-                messages.error(request, "Missing Input")
-                return redirect('store')
-            except KeyError:
-                messages.info(request, "Session Expired. Please Login")
-                return redirect('auth')
-            try:
-                response = config.CLIENT.service.FnStoreRequisitionHeader(
-                    requisitionNo, employeeNo, reason, myUserId, myAction)
-                if response !='0':
-                    messages.success(request, "Success")
-                    return redirect('StoreDetail', pk=response)
+        try:
+            soap_headers = request.session['soap_headers']
+            requisitionNo = request.POST.get('requisitionNo')
+            reason = request.POST.get('reason')
+            myAction = request.POST.get('myAction')
+            myUserId = request.session['User_ID']
+            employeeNo = request.session['Employee_No_']
+            
+            response = self.make_soap_request(soap_headers,'FnStoreRequisitionHeader',
+                requisitionNo, employeeNo, reason, myUserId, myAction)
+            if response !='0':
+                messages.success(request, "Success")
+                return redirect('StoreDetail', pk=response)
+            elif response =='0':
                 messages.error(request, "Failed")
                 return redirect('store')
-            except Exception as e:
-                print(e)
-                messages.info(request, e)
-                return redirect('store')
-        return redirect('store')
+        except Exception as e:
+            logging.exception(e)
+            messages.error(request, 'Failed, 201-denied')
+            return redirect('store')
 
 class StoreRequestDetails(UserObjectMixin, View):
     def get(self, request,pk):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
+            res = {}
 
             Access_Point = config.O_DATA.format(f"/QyStoreRequisitionHeaders?$filter=No_%20eq%20%27{pk}%27%20and%20Requested_By%20eq%20%27{userID}%27")
             response = self.get_object(Access_Point)
@@ -660,7 +657,7 @@ class StoreRequestDetails(UserObjectMixin, View):
             Comments = [x for x in RejectedResponse['value']]
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('auth')
         except KeyError:
@@ -668,7 +665,7 @@ class StoreRequestDetails(UserObjectMixin, View):
             return redirect('auth')
 
         ctx = {"today": self.todays_date, "res": res,"line": openLines,
-            "Approvers": Approvers, "loc": Location,"year": year, "full": userID,
+            "Approvers": Approvers, "loc": Location, "full": full_name,
             "itemsCategory": itemsCategory,"file":allFiles,
             "Comments":Comments}
         return render(request, 'storeDetail.html', ctx)
@@ -693,8 +690,8 @@ class StoreRequestDetails(UserObjectMixin, View):
                 print(response)
                 return redirect('StoreDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('StoreDetail', pk=pk)
         return redirect('StoreDetail', pk=pk)
 
@@ -748,8 +745,8 @@ def StoreApproval(request, pk):
             print(response)
             return redirect('StoreDetail', pk=pk)
         except Exception as e:
-            messages.info(request, e)
-            print(e)
+            messages.error(request, 'Failed, 201-denied')
+            logging.exception(e)
             return redirect('StoreDetail', pk=pk)
     return redirect('StoreDetail', pk=pk)
 
@@ -770,8 +767,8 @@ def FnCancelStoreApproval(request, pk):
             print(response)
             return redirect('StoreDetail', pk=pk)
         except Exception as e:
-            messages.info(request, e)
-            print(e)
+            messages.error(request, 'Failed, 201-denied')
+            logging.exception(e)
             return redirect('StoreDetail', pk=pk)
     return redirect('StoreDetail', pk=pk)
 
@@ -786,8 +783,8 @@ def FnDeleteStoreRequisitionLine(request, pk):
             messages.success(request, "Successfully Deleted")
             print(response)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('StoreDetail', pk=pk)
     return redirect('StoreDetail', pk=pk)
 
@@ -811,60 +808,61 @@ def FnGenerateStoreReport(request, pk):
             responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
             return responses
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('StoreDetail', pk=pk)
     return redirect('StoreDetail', pk=pk)
 
-def UploadStoreAttachment(request, pk):
-    response = ""
-    fileName = ""
-    attachment = ""
-    
-    if request.method == "POST":
+class UploadStoreAttachment(UserObjectMixins, View):   
+    def post(self,request,pk):
         try:
-            attach = request.FILES.getlist('attachment')
+            attachments = request.FILES.getlist('attachment')
+            soap_headers = request.session['soap_headers']
             tableID = 52177432
-        except Exception as e:
-            return redirect('StoreDetail', pk=pk)
-        for files in attach:
-            fileName = request.FILES['attachment'].name
-            attachment = base64.b64encode(files.read())
-            try:
-                response = config.CLIENT.service.FnUploadAttachedDocument(
-                    pk, fileName, attachment, tableID,request.session['User_ID'])
-            except Exception as e:
-                messages.error(request, e)
-                print(e)
-        if response == True:
-            messages.success(request, "File(s) Uploaded Successfully")
-            return redirect('StoreDetail', pk=pk)
-        else:
-            messages.error(request, "Failed, Try Again.")
-            return redirect('StoreDetail', pk=pk)
-    return redirect('StoreDetail', pk=pk)
+            attachment_names = []
+            response = False
 
-def DeleteStoreAttachment(request,pk):
-    if request.method == "POST":
+            for file in attachments:
+                fileName = file.name
+                attachment_names.append(fileName)
+                attachment = base64.b64encode(file.read())
+
+                response = self.upload_attachment(soap_headers,pk, fileName,
+                                                  attachment, tableID, request.session['User_ID'])
+            if response is not None:
+                if response == True:
+                    messages.success(request, "Uploaded {} attachments successfully".format(len(attachments)))
+                    return redirect('StoreDetail', pk=pk)
+                messages.error(request, "Upload failed: {}".format(response))
+                return redirect('StoreDetail', pk=pk)
+            messages.error(request, "Upload failed: Response from server was None")
+            return redirect('StoreDetail', pk=pk)
+        except Exception as e:
+            messages.error(request, "Upload failed: {}".format(e))
+            logging.exception(e)
+            return redirect('StoreDetail', pk=pk)
+
+class  DeleteStoreAttachment(UserObjectMixins,View):
+    def post(self,request,pk):
+        soap_headers = request.session['soap_headers']
         docID = int(request.POST.get('docID'))
         tableID= int(request.POST.get('tableID'))
         try:
-            response = config.CLIENT.service.FnDeleteDocumentAttachment(
+            response = self.delete_attachment(soap_headers,
                 pk,docID,tableID)
-            print(response)
             if response == True:
                 messages.success(request, "Deleted Successfully ")
                 return redirect('StoreDetail', pk=pk)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
-    return redirect('StoreDetail', pk=pk)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
+            return redirect('StoreDetail', pk=pk)
 
 class GeneralRequisition(UserObjectMixins,View):
     def get(self, request):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
 
             response = self.one_filter("/QyGeneralRequisitionHeaders","Requested_By","eq",userID)
             openRequest = [x for x in response[1] if x['Status'] == 'Open']
@@ -876,12 +874,12 @@ class GeneralRequisition(UserObjectMixins,View):
             pend = len(Pending)
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.error(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('auth')
         except KeyError as e:
-            print(e)
-            messages.info(request, e)
+            logging.exception(e)
+            messages.error(request, 'Failed, 201-denied')
             return redirect('auth')
         
 
@@ -889,8 +887,8 @@ class GeneralRequisition(UserObjectMixins,View):
             "today": self.todays_date, "res": openRequest,
             "count": counts, "response": Approved,
             "counter": counter, "pend": pend,
-            "pending": Pending, "year": year,
-            "full": userID
+            "pending": Pending,
+            "full": full_name
             }
         return render(request,"generalReq.html",ctx)
     def post(self,request):
@@ -914,8 +912,8 @@ class GeneralRequisition(UserObjectMixins,View):
                 messages.info(request, "Session Expired. Please Login")
                 return redirect('auth')
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('GeneralRequisition')
         return redirect('GeneralRequisition')
 
@@ -951,11 +949,11 @@ class GeneralRequisitionDetails(UserObjectMixin,View):
             openLines = [x for x in response_Lines['value'] if x['AuxiliaryIndex1'] == pk]
  
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Whoops! Something went wrong. Please Login to Continue")
             return redirect('purchase')
         except KeyError as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
 
@@ -997,8 +995,8 @@ class GeneralRequisitionDetails(UserObjectMixin,View):
                     messages.error(request, "Not Sent")
                     return redirect('GeneralRequisitionDetails', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
                 return redirect('GeneralRequisitionDetails', pk=pk)
         return redirect('GeneralRequisitionDetails', pk=pk)
 
@@ -1018,8 +1016,8 @@ def FnDeleteGeneralRequisitionLine(request, pk):
             messages.error(request, "Not Sent")
             return redirect('GeneralRequisitionDetails', pk=pk)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('GeneralRequisitionDetails', pk=pk)
     return redirect('GeneralRequisitionDetails', pk=pk)
 
@@ -1043,8 +1041,8 @@ def UploadGeneralAttachment(request, pk):
                     messages.error(request, "Failed, Try Again.")
                     return redirect('GeneralRequisitionDetails', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
     return redirect('GeneralRequisitionDetails', pk=pk)
 
 def DeleteGeneralAttachment(request,pk):
@@ -1059,8 +1057,8 @@ def DeleteGeneralAttachment(request,pk):
                 messages.success(request, "Deleted Successfully ")
                 return redirect('GeneralRequisitionDetails', pk=pk)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
     return redirect('GeneralRequisitionDetails', pk=pk)
 
 def GeneralApproval(request, pk):
@@ -1087,8 +1085,8 @@ def GeneralApproval(request, pk):
             print(response)
             return redirect('GeneralRequisitionDetails', pk=pk)
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('GeneralRequisitionDetails', pk=pk)
     return redirect('GeneralRequisitionDetails', pk=pk)
 
@@ -1105,8 +1103,8 @@ def FnCancelGeneralApproval(request, pk):
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('GeneralRequisitionDetails', pk=pk)
     return redirect('GeneralRequisitionDetails', pk=pk)
 
@@ -1128,7 +1126,7 @@ def FnGenerateGeneralReport(request, pk):
             responses['Content-Disposition'] = f'inline;filename={filenameFromApp}'
             return responses
         except Exception as e:
-            messages.error(request, e)
-            print(e)
+            messages.error(request,'Failed, 201 denied')
+            logging.exception(e)
             return redirect('GeneralRequisitionDetails', pk=pk)
     return redirect('GeneralRequisitionDetails', pk=pk)

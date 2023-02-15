@@ -130,7 +130,7 @@
 }
 
 .brs {
-  color: #e1b382;
+  color: var(--first-color-light);
 }
 
 div.dataTables_filter input {

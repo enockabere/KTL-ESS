@@ -7,16 +7,17 @@ REPAIR AND MAINTENANCE DETAILS
 <section class="dash2">
     <div class="content-wrapper">
         <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb shadow-lg  d-flex justify-content-start inner-breadcrumb">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <ol class="breadcrumb d-flex justify-content-start inner-breadcrumb" style="margin-left: -1rem;">
                     <li class="breadcrumb-item">
                         <a href="{% url 'dashboard' %}" class="breadcrumbs text-danger">
                             <i class="fa fa-home"></i>
-                            Home</a>
+                            Home
+                        </a>
                     </li>
                     <li class="breadcrumb-item ">
                         <a href="{% url 'repair' %}" class="breadcrumbs text-dark">
-                            Repair & Maintenance
+                            <span class="brs">{{res.Status}} </span> Repair & Maintenance
                         </a>
                     </li>
                     <li class="breadcrumb-item "><span class="breadcrumbs text-muted">
@@ -24,22 +25,15 @@ REPAIR AND MAINTENANCE DETAILS
                         </span>
                     </li>
                 </ol>
-            </div>
-        </div>
-        <div class="d-xl-flex justify-content-between align-items-start">
-            <div class="d-sm-flex justify-content-xl-between align-items-center mb-2">
-                <div class="dropdown ml-0 ml-md-4 mt-2 mt-lg-0">
-                    {% if res.Status == "Open" %}
-                    <button class="btn btn-successs p-3 d-flex align-items-center" type="button" data-bs-toggle="modal"
-                        data-bs-target="#staticBackdrop"> <i class="las la-plus text-white"
-                            style="font-size: 15px;"></i> Repair/Maintenance Lines
-                    </button>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    {% if res.Status == "Open"  %}
+                    <button class="button-88 me-md-2" type="button" type="button" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop"><i class="las la-plus"></i> Repair/Maintenance Lines</button>
                     {% elif res.Status == "Released" %}
                     <form action="{% url 'FnGenerateRepairReport' res.No_ %}" method="post"
                         style="display:inline-block">
                         {% csrf_token %}
-                        <button class="btn btn-successs" type="submit"> Preview
-                            Report</button>
+                        <button class="button-88" type="submit"> Preview Report</button>
                     </form>
                     {% endif %}
                 </div>
@@ -47,112 +41,22 @@ REPAIR AND MAINTENANCE DETAILS
         </div>
         <!--alert -->
         {% include 'alerts.html' %}
-        <div class="row my-3">
-            <div class="col-md-4">
-                <div class="card l-bg-cherry statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-users"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Requested By</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Requested_By}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card l-bg-blue-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-users"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Repair/Maintenance Status</h5>
-                        </div>
-                        {% if res.Status == "Open" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-red" role="progressbar" data-width="50%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 50%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Pending Approval" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-yellow" role="progressbar" data-width="25%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 75%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% elif res.Status == "Released" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    Approved
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-green" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100"
-                                style="width: 100%; background: linear-gradient(to right, #a86008, #c18b39) !important;">
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card l-bg-orange-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-times"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Order Date</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0" id="order_date_card">
-                                    {{res.Order_Date}}
-                                </h2>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-12">
                 <div id="accordion" class="accordion-style">
                     <div class="card mb-3">
                         <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
                                     Details
                                 </button>
                             </h5>
                         </div>
-                        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-bs-parent="#accordion">
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                            data-bs-parent="#accordion">
                             <div class="card-body">
-                                <div class="row">
+                                <div class="row gx-1">
                                     <div class="col-md-12">
                                         <form class="row g-3">
                                             <div class="col-md-4">
@@ -170,6 +74,16 @@ REPAIR AND MAINTENANCE DETAILS
                                                 <input type="text" class="form-control"
                                                     placeholder="{{res.Employee_Name}}" readonly>
                                             </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Document Status</label>
+                                                <input type="text" class="form-control" placeholder="{{res.Status}}"
+                                                    readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Order Date</label>
+                                                <input type="text" class="form-control" id="order_date_card"
+                                                    placeholder="{{res.Order_Date}}" readonly>
+                                            </div>
                                             <div class="col-md-12">
                                                 <label class="form-label">Reason Description</label>
                                                 <textarea class="form-control" placeholder="{{res.Reason_Description}}"
@@ -184,11 +98,12 @@ REPAIR AND MAINTENANCE DETAILS
                     <div class="card mb-3">
                         <div class="card-header" id="headingThree">
                             <h5 class="mb-0">
-                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseThree"
-                                    aria-expanded="true" aria-controls="collapseThree">Repair/Maintenance Lines</button>
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false"
+                                    aria-controls="collapseThree">Repair/Maintenance Lines</button>
                             </h5>
                         </div>
-                        <div id="collapseThree" class="collapse show" aria-labelledby="headingThree"
+                        <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
                             data-bs-parent="#accordion">
                             <div class="card-body">
                                 <div class="row mt-4">
@@ -390,12 +305,12 @@ REPAIR AND MAINTENANCE DETAILS
         </div>
         {% endif %}
     </div>
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="staticBackdrop" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">New Repair/Maintenance Line
+                    <h5 class="modal-title">New Repair/Maintenance Line
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
@@ -410,7 +325,7 @@ REPAIR AND MAINTENANCE DETAILS
                                 <input type="hidden" name="myAction" value="insert">
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-12">
                                 <label class="form-label">Asset</label>
                                 <select class="form-select" name="assetCode" id="assetCode" required>
@@ -422,13 +337,13 @@ REPAIR AND MAINTENANCE DETAILS
                                 </select>
                             </div>
                         </div>
-                        <div class="row" id="OtherAssetRow" style="display: none">
+                        <div class="row my-3" id="OtherAssetRow" style="display: none">
                             <div class="col-md-12">
                                 <label class="form-label">Other Asset</label>
                                 <input type="text" name="OtherAsset" id="OtherAsset" class="form-control" disabled>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-12">
                                 <label class="form-label">Attachments </label>
                                 <input class="form-control" name="attachment" type="file" multiple>
@@ -437,13 +352,14 @@ REPAIR AND MAINTENANCE DETAILS
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-12">
                                 <label class="form-label">Detail <span class="text-danger">*</span></label>
                                 <textarea class="form-control" name="description" rows="3" required></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success my-3 w-100">Submit</button>
+                        <button type="submit" class="button-88 my-3 w-100">Submit <i
+                                class="las la-arrow-right submit-icon"></i></button>
                     </form>
                 </div>
             </div>
@@ -453,11 +369,9 @@ REPAIR AND MAINTENANCE DETAILS
 
 <script>
     $(document).ready(function () {
-        $("#order_date_card")
-            .empty().append(moment(
-                    '{{res.Order_Date}}', "YYYY-MM-DD")
-                .format(
-                    'Do MMM YYYY'));
+        $("#order_date_card").attr("placeholder", moment(
+            '{{res.Order_Date}}', "YYYY-MM-DD").format(
+            'Do MMM YYYY')).val("").focus().blur();
         $("#date_inserted").attr("placeholder", moment(
             '{{res.Document_Date}}', "YYYY-MM-DD").format(
             'Do MMM YYYY')).val("").focus().blur();

@@ -9,7 +9,7 @@ import json
 from django.conf import settings as config
 import datetime as dt
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import io as BytesIO
 import secrets
 import string
@@ -17,166 +17,6 @@ from django.views import View
 from myRequest.views import UserObjectMixins
 from asgiref.sync import sync_to_async
 # Create your views here.
-
-class Leave_Planner(UserObjectMixins,View):
-    def get(self,request):
-        try:
-            userId = request.session['User_ID']
-            empNo =request.session['Employee_No_']
-
-            response = self.one_filter("/QyLeavePlannerHeaders","Employee_No_","eq",empNo)
-            Plans = response[1]
-        except requests.exceptions.Timeout:
-            messages.error(request, "Server timeout,retry,restart server.")
-            return redirect('dashboard')
-        except requests.exceptions.ConnectionError:
-            messages.error(request, "Connection/network error,retry")
-            return redirect('dashboard') 
-        except requests.exceptions.TooManyRedirects:
-            messages.error(request, "Server busy, retry")
-            return redirect('dashboard')
-        except KeyError as e:
-            messages.info(request, "Session Expired. Please Login")
-            print(e)
-            return redirect('auth')
-        except Exception as e:
-            print(e)
-            messages.info(request, e)
-            return redirect('auth')
-        ctx = {
-            "today": self.todays_date,
-            "res": Plans,
-            "full": userId
-            }
-        return render(request, 'planner.html', ctx)
-
-    def post(self,request):
-        try:
-            plannerNo = request.POST.get('plannerNo')
-            empNo = request.session['Employee_No_']
-            myAction = request.POST.get('myAction')
-
-            response = self.zeep_client(request).service.FnLeavePlannerHeader(
-                plannerNo, empNo, myAction)
-            if response !=False:
-                messages.success(request, "Success")
-                return redirect('PlanDetail',pk=response)
-            messages.error(request, response)
-            return redirect('LeavePlanner')   
-        except requests.exceptions.Timeout:
-            messages.error(request, "Server timeout,retry,restart server.")
-            return redirect('dashboard')
-        except requests.exceptions.ConnectionError:
-            messages.error(request, "Connection/network error,retry")
-            return redirect('dashboard') 
-        except requests.exceptions.TooManyRedirects:
-            messages.error(request, "Server busy, retry")
-            return redirect('dashboard')
-        except KeyError as e:
-            messages.info(request, "Session Expired. Please Login")
-            print(e)
-            return redirect('auth')
-        except Exception as e:
-            messages.info(request, e)
-            print(e)
-            return redirect('auth')
-        return redirect('LeavePlanner')
-
-
-class PlanDetail(UserObjectMixins,View):
-    def get(self,request,pk):
-        fullname = request.session['User_ID']
-        empNo =request.session['Employee_No_']
-        
-        try:
-            response = self.double_filtered_data("/QyLeavePlannerHeaders","No_","eq",pk,"and",
-                                                    "Employee_No_","eq",empNo)
-            for plan in response[1]:
-                res=plan
-
-            LinesRes = self.double_filtered_data("/QyLeavePlannerLines","Document_No_","eq",pk,"and",
-                                                    "Employee_No_","eq",empNo)
-            openLines = LinesRes[1]
-
-        except requests.exceptions.Timeout:
-            messages.error(request, "Server timeout,retry,restart server.")
-            return redirect('dashboard')
-        except requests.exceptions.ConnectionError:
-            messages.error(request, "Connection/network error,retry")
-            return redirect('dashboard') 
-        except requests.exceptions.TooManyRedirects:
-            messages.error(request, "Server busy, retry")
-            return redirect('dashboard')
-        except KeyError as e:
-            messages.info(request, "Session Expired. Please Login")
-            print(e)
-            return redirect('auth')
-        except Exception as e:
-            messages.info(request, e)
-            print(e)
-            return redirect('auth')
-        ctx = {
-            "today": self.todays_date, 
-            "full": fullname,
-            "line": openLines,"res":res
-            }
-        return render(request, 'planDetails.html', ctx)
-
-    def post(self,request, pk):
-        try:
-            plannerNo = pk
-            lineNo = int(request.POST.get('lineNo'))
-            startDate = datetime.strptime((request.POST.get('startDate')), '%Y-%m-%d').date()
-            endDate = datetime.strptime((request.POST.get('endDate')), '%Y-%m-%d').date()
-            myAction = request.POST.get('myAction')
-
-            response = self.zeep_client(request).service.FnLeavePlannerLine(
-            lineNo, plannerNo, startDate, endDate, myAction)
-            print(response)
-
-            if response == True:
-                messages.success(request, "Request Successful")
-                return redirect('PlanDetail', pk=pk)
-            messages.success(request, response)
-            return redirect('PlanDetail', pk=pk)
-        except Exception as e:
-            messages.error(request, e)
-            print(e)
-        return redirect('PlanDetail', pk=pk)
-        
-
-
-class FnDeleteLeavePlannerLine(UserObjectMixins, View):
-    def post(self,request, pk):
-        if request.method == 'POST':
-            try:
-                lineNo = int(request.POST.get('lineNo'))
-                response = self.zeep_client(request).service.FnDeleteLeavePlannerLine(pk,lineNo)
-                if response == True:
-                    messages.success(request, "Successfully  Deleted")
-                    return redirect('PlanDetail', pk=pk)
-                messages.error(request, response)
-                return redirect('PlanDetail', pk=pk)
-            except Exception as e:
-                messages.error(request, e)
-                print(e)
-        return redirect('PlanDetail', pk=pk)
-       
-class myLeave(UserObjectMixins,View):
-    """View not implemented
-
-        Returns:
-            _type_: Detailed info for user when making
-            leave applications
-    """
-    def get(self, request):
-        fullname = request.session['User_ID']
-        ctx = {
-            "today": self.todays_date, 
-            "full": fullname,
-            }
-        return render(request,"myLeave.html",ctx)
-
 class Leave_Request(UserObjectMixins,View):
     async def get(self,request):
         try:
@@ -187,21 +27,23 @@ class Leave_Request(UserObjectMixins,View):
             approvedLeave = []
             Leave = []
             pendingLeave = []
+            relievers = []
                         
             async with aiohttp.ClientSession() as session:
                 task_get_leave = asyncio.ensure_future(self.fetch_one_filtered_data(session,
                                          "/QyLeaveApplications","User_ID","eq",UserId))
                 task_get_leave_types = asyncio.ensure_future(self.simple_fetch_data(session,
                                                                       "/QyLeaveTypes"))
-                task_get_reliever = asyncio.ensure_future(self.fetch_one_filtered_data(session,
-                                    "/QyEmployees","Global_Dimension_1_Code","eq",department))
+                task_get_reliever = asyncio.ensure_future(self.simple_double_filtered_data(session,
+                                            "/QyEmployees","Global_Dimension_2_Code","eq",department,
+                                            "and","User_ID", "ne",UserId))
                 response = await asyncio.gather(task_get_leave,task_get_leave_types,task_get_reliever)
 
                 openLeave = [x for x in response[0]['data'] if x['Status'] == 'Open']
                 pendingLeave = [x for x in response[0]['data'] if x['Status'] == 'Pending Approval']
                 approvedLeave = [x for x in response[0]['data'] if x['Status'] == 'Released']
                 Leave = [x for x in response[1]]
-                relievers = [x for x in response[2]['data']]
+                relievers = [x for x in response[2] if x['Global_Dimension_2_Code'] ==department]
         except KeyError:
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
@@ -222,43 +64,55 @@ class Leave_Request(UserObjectMixins,View):
             applicationNo = request.POST.get('applicationNo')
             employeeNo = await sync_to_async(request.session.__getitem__)('Employee_No_')
             usersId = await sync_to_async(request.session.__getitem__)('User_ID')
-            dimension3 = ''
             leaveType = request.POST.get('leaveType')
             plannerStartDate = datetime.strptime(request.POST.get('plannerStartDate'), '%Y-%m-%d').date()
             daysApplied = int(request.POST.get('daysApplied'))
             isReturnSameDay = eval(request.POST.get('isReturnSameDay'))
             myAction = request.POST.get('myAction')
+            reliever = request.POST.get('reliever')
             if not daysApplied:
                 daysApplied = 0
             
             response = self.make_soap_request(soap_headers,"FnLeaveApplication",
-                    applicationNo, employeeNo, usersId, dimension3, leaveType,
+                    applicationNo, employeeNo, usersId, leaveType,
                      plannerStartDate, daysApplied, isReturnSameDay, myAction)
-            print(response)
             if response !='0':
-                add_reliever = self.make_soap_request(soap_headers,"FnLeaveReliver",
-                                                      response,employeeNo,myAction)
+                add_reliever = self.make_soap_request(soap_headers,"FnLeaveReliever",
+                                                      response,reliever)
                 print("reliever response:",add_reliever)
-                if add_reliever == True:
+                if add_reliever !='0':
                     messages.success(request, "Success")
-                    return redirect('LeaveDetail', pk=response)
-                if add_reliever == False:
+                    return redirect('LeaveDetail', pk=add_reliever)
+                if add_reliever == '0':
                     messages.info(request, f"Leave reliever not added.")
                     return redirect('LeaveDetail', pk=response)
             if response == '0':
                 messages.error(request, response)
                 return redirect('leave')
         except Exception as e:
-            messages.error(request, "Failed. Server Error")
+            messages.error(request, f"{e}")
             print(e)
             return redirect('leave')
-
-
-
+class FnLeaveBalances(UserObjectMixins,View):
+    def post(self,request):
+        try:
+            soap_headers = request.session['soap_headers']
+            Employee_No_ = request.session['Employee_No_']
+            
+            response = self.make_soap_request(soap_headers,
+                            "FnLeaveBalances",Employee_No_)
+            if response.isnumeric():
+                return JsonResponse(response,safe=False)
+            else:
+                return JsonResponse(0,safe=False)
+        except Exception as e:
+            print(e)
+            return JsonResponse(0,safe=False)
 class LeaveDetail(UserObjectMixins,View):
     def get(self,request,pk):
         try:
             userId = request.session['User_ID']
+            full_name =request.session['full_name']
 
             response = self.double_filtered_data("/QyLeaveApplications","Application_No","eq",pk,
                                         "and","User_ID","eq",userId)
@@ -283,25 +137,23 @@ class LeaveDetail(UserObjectMixins,View):
 
         ctx = {
             "today": self.todays_date, "res": res,
-            "Approvers": Approvers,"full": userId,"file":allFiles,"Comments":Comments
+            "Approvers": Approvers,"full": full_name,"file":allFiles,"Comments":Comments
             }
         return render(request, 'leaveDetail.html', ctx)
 
     def post(self,request,pk):
         try:
+            soap_headers = request.session['soap_headers']
             attachments = request.FILES.getlist('attachment')
             tableID = 52177494
             attachment_names = []
             response = False
-
             for file in attachments:
                 fileName = file.name
                 attachment_names.append(fileName)
                 attachment = base64.b64encode(file.read())
-
-                response = config.CLIENT.service.FnUploadAttachedDocument(
-                        pk, fileName, attachment, tableID, request.session['User_ID'])
-                
+                response = self.upload_attachment(soap_headers,pk, fileName, attachment,
+                                                  tableID, request.session['User_ID']) 
             if response is not None:
                 if response == True:
                     messages.success(request, "Uploaded {} attachments successfully".format(len(attachments)))
@@ -320,9 +172,10 @@ class DeleteLeaveAttachment(UserObjectMixins,View):
     def post(self,request,pk):
         if request.method == "POST":
             try:
+                soap_headers = request.session['soap_headers']
                 docID = int(request.POST.get('docID'))
                 tableID= int(request.POST.get('tableID'))
-                response = self.zeep_client(request).service.FnDeleteDocumentAttachment(
+                response = self.delete_attachment(soap_headers,
                     pk,docID,tableID)
                 if response == True:
                     messages.success(request, "Deleted Successfully")
@@ -338,10 +191,11 @@ class LeaveApproval(UserObjectMixins, View):
     def post(self,request,pk):
         if request.method == 'POST':
             try:
+                soap_headers = request.session['soap_headers']
                 employeeNo = request.session['Employee_No_']
                 applicationNo = request.POST.get('applicationNo')
 
-                response = self.zeep_client(request).service.FnRequestLeaveApproval(
+                response = self.make_soap_request(soap_headers,'FnRequestLeaveApproval',
                         employeeNo, applicationNo)
                 if response == True:
                     messages.success(request, "Request Successful")
@@ -359,11 +213,11 @@ class LeaveCancelApproval(UserObjectMixins, View):
         try:
             if request.method == 'POST':
                 employeeNo = request.session['Employee_No_']
+                soap_headers = request.session['soap_headers']
                 applicationNo = request.POST.get('applicationNo')
 
-            response = self.zeep_client(request).service.FnCancelLeaveApproval(
+            response = self.make_soap_request(soap_headers,'FnCancelLeaveApproval',
                     employeeNo, applicationNo)
-            print(response)
             if response == True:
                 messages.success(request, "Success")
                 return redirect('LeaveDetail', pk=pk)
@@ -538,6 +392,7 @@ class UploadTrainingAttachment(UserObjectMixins, View):
     def post(self,request,pk):
         try:
             attachments = request.FILES.getlist('attachment')
+            soap_headers = request.session['soap_headers']
             tableID = 52177501
             attachment_names = []
             response = False
@@ -547,9 +402,8 @@ class UploadTrainingAttachment(UserObjectMixins, View):
                 attachment_names.append(fileName)
                 attachment = base64.b64encode(file.read())
 
-                response = config.CLIENT.service.FnUploadAttachedDocument(
-                        pk, fileName, attachment, tableID, request.session['User_ID'])
-                
+                response = self.upload_attachment(soap_headers,pk, fileName,
+                                                  attachment, tableID, request.session['User_ID'])
             if response is not None:
                 if response == True:
                     messages.success(request, "Uploaded {} attachments successfully".format(len(attachments)))
@@ -565,22 +419,22 @@ class UploadTrainingAttachment(UserObjectMixins, View):
 
 class FnAdhocLineDelete(UserObjectMixins, View):
     def post(self,request,pk):
-        if request.method == 'POST':
-            try:
-                requestNo = pk
-                needNo = request.POST.get('needNo')
+        try:
+            requestNo = pk
+            soap_headers = request.session['soap_headers']
+            needNo = request.POST.get('needNo')
 
-                response = self.zeep_client(request).service.FnDeleteAdhocTrainingNeedRequest(
-                    needNo,requestNo)
-                if response == True:
-                    messages.success(request, "Successfully Deleted")
-                    return redirect('TrainingDetail', pk=pk)
-                messages.success(request, response)
+            response = self.make_soap_request(soap_headers, 'FnDeleteAdhocTrainingNeedRequest',
+                needNo,requestNo)
+            if response == True:
+                messages.success(request, "Successfully Deleted")
                 return redirect('TrainingDetail', pk=pk)
-            except Exception as e:
-                messages.error(request, e)
-                print(e)
-        return redirect('TrainingDetail', pk=pk)
+            messages.success(request, response)
+            return redirect('TrainingDetail', pk=pk)
+        except Exception as e:
+            messages.error(request, e)
+            print(e)
+            return redirect('TrainingDetail', pk=pk)
 
 
 class TrainingApproval(UserObjectMixins, View):

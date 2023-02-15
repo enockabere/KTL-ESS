@@ -66,6 +66,25 @@ class UserObjectMixins(object):
             client = Client(config.BASE_URL, transport=Transport(session=session))
             response = executor.submit(client.service[endpoint], *params).result()
         return response
+    def upload_attachment(self,soap_headers, *params):
+        global session
+        if not session:
+            session = Session()
+            session.auth = HTTPBasicAuth(soap_headers['username'], soap_headers['password'])
+        with ThreadPoolExecutor() as executor:
+            client = Client(config.BASE_URL, transport=Transport(session=session))
+            response = executor.submit(client.service['FnUploadAttachedDocument'], *params).result()
+        return response
+    def delete_attachment(self,soap_headers, *params):
+        global session
+        if not session:
+            session = Session()
+            session.auth = HTTPBasicAuth(soap_headers['username'], soap_headers['password'])
+        with ThreadPoolExecutor() as executor:
+            client = Client(config.BASE_URL, transport=Transport(session=session))
+            response = executor.submit(client.service['FnDeleteDocumentAttachment'], *params).result()
+        return response
+    
     def get_object(self,endpoint):
         response = self.sessions.get(endpoint).json()
         return response

@@ -8,13 +8,13 @@ from django.views import View
 from myRequest.views import UserObjectMixins
 import base64
 import time
+import logging
 
 class advance(UserObjectMixins,View):
     def get(self,request):
         starting_time = time.time()
         try:
             fullname =  request.session['User_ID']
-            year = request.session['years']
             empNo =request.session['Employee_No_']
 
             response = self.one_filter("/QySalaryAdvances","Employee_No","eq",empNo)
@@ -26,22 +26,22 @@ class advance(UserObjectMixins,View):
             SalaryResponse = self.get_object(SalaryProducts)
             salary = SalaryResponse['value']
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, e)
             return redirect('auth')
         except KeyError as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth')
         except Exception as e:
-            print(e)
+            logging.exception(e)
             messages.error(request,e)
             return redirect('auth')
         total_time = time.time() - starting_time
         ctx = {
             "today": self.todays_date, "res": openAdvance,
             "response": Approved,"time": total_time,
-            "pending": Pending, "year": year,
+            "pending": Pending,
             "full": fullname,"salary":salary
             }
         return render(request,"advance.html",ctx)
@@ -69,15 +69,14 @@ class advance(UserObjectMixins,View):
                 messages.error(request, response)
                 return redirect('advance')
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         return redirect('advance')
 
 class advanceDetail(UserObjectMixins,View):
     def get(self, request,pk):
         try:
             fullname = request.session['User_ID']
-            year = request.session['years']
             empNo =request.session['Employee_No_']
 
             response = self.double_filtered_data("/QySalaryAdvances","Loan_No", "eq",pk,
@@ -96,20 +95,20 @@ class advanceDetail(UserObjectMixins,View):
             allFiles = [x for x in res_file[1]]
 
         except requests.exceptions.ConnectionError as e:
-            print(e)
+            logging.exception(e)
             messages.error(request,e)
             return redirect('advance')
         except KeyError as e:
             messages.info(request, "Session Expired. Please Login")
-            print(e)
+            logging.exception(e)
             return redirect('auth')
         except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         ctx = {
             "today": self.todays_date, "res": res,
             "Approvers": Approvers, "state": state,"file":allFiles,
-            "year": year, "full": fullname,"Comments":Comments
+            "full": fullname,"Comments":Comments
             }
 
         return render(request,"advanceDetails.html",ctx)
@@ -127,8 +126,8 @@ class FnRequestSalaryAdvanceApproval(UserObjectMixins,View):
                 messages.error(request, response)
                 return redirect('advanceDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e) 
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e) 
                 return redirect('advanceDetail', pk=pk)       
         return redirect('advanceDetail', pk=pk)
 
@@ -144,8 +143,8 @@ class FnCancelSalaryAdvanceApproval(UserObjectMixins,View):
                 messages.errors(request, response)
                 return redirect('advanceDetail', pk=pk) 
             except Exception as e:
-                messages.error(request, e)
-                print(e)        
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)        
         return redirect('advanceDetail', pk=pk)
 
 class UploadAdvanceAttachment(UserObjectMixins, View):
@@ -165,8 +164,8 @@ class UploadAdvanceAttachment(UserObjectMixins, View):
                 messages.error(request, "Failed, Try Again")
                 return redirect('advanceDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         return redirect('advanceDetail', pk=pk)
 
 class DeleteAdvanceAttachment(UserObjectMixins,View):
@@ -184,6 +183,6 @@ class DeleteAdvanceAttachment(UserObjectMixins,View):
                 messages.error(request, response)
                 return redirect('advanceDetail', pk=pk)
             except Exception as e:
-                messages.error(request, e)
-                print(e)
+                messages.error(request,'Failed, 201 denied')
+                logging.exception(e)
         return redirect('advanceDetail', pk=pk)

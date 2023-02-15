@@ -11766,6 +11766,7 @@ dl li {
 .navbar {
   font-family: "nunito-medium", sans-serif;
   background: #ffffff;
+  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
   transition: background 0.25s ease;
   -webkit-transition: background 0.25s ease;
   -moz-transition: background 0.25s ease;

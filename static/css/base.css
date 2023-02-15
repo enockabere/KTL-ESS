@@ -190,6 +190,16 @@ input.invalid {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.overview-content {
+  margin-top: 50px;
+  padding-top: 10px !important;
+}
+
+.overview-content .custom-control-description {
+  font-size: 14px;
+  line-height: 22px;
+  font-family: var(--lato-family);
+}
 
 .utilities li {
   display: inline-block !important;

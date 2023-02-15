@@ -4,10 +4,15 @@ var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggl
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
     return new bootstrap.Popover(popoverTriggerEl)
 })
-
 $(document).ready(function () {
-    $('table.display').DataTable();
+    $('table.display').DataTable({
+        "pageLength": 5,
+        "order": [
+            [0, "desc"]
+        ]
+    });
 });
+
 
 const nxtBtn = document.querySelector('#submitBtn');
 const form1 = document.querySelector('#form1');

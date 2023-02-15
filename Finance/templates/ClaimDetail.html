@@ -7,38 +7,35 @@ STAFF CLAIM DETAIL
 <section class="dash2">
     <div class="content-wrapper" style="padding-bottom: 5rem;">
         <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb shadow-lg  d-flex justify-content-start inner-breadcrumb">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <ol class="breadcrumb d-flex justify-content-start inner-breadcrumb" style="margin-left: -1rem;">
                     <li class="breadcrumb-item">
                         <a href="{% url 'dashboard' %}" class="breadcrumbs text-danger">
                             <i class="fa fa-home"></i>
-                            Home</a>
+                            Home
+                        </a>
                     </li>
                     <li class="breadcrumb-item ">
                         <a href="{% url 'claim' %}" class="breadcrumbs text-dark">
-                            Staff Claim
+                            <span class="brs">{{res.Status}} </span> Staff Claim
                         </a>
                     </li>
-                    <li class="breadcrumb-item "><span class="breadcrumbs text-muted">
+                    <li class="breadcrumb-item ">
+                        <span class="breadcrumbs text-muted">
                             {{res.No_}}
-                        </span></li>
+                        </span>
+                    </li>
                 </ol>
-            </div>
-        </div>
-        <div class="d-xl-flex justify-content-end align-items-start">
-            <div class="d-sm-flex justify-content-xl-between align-items-center mb-2">
-                <div class="dropdown ml-0 ml-md-4 mt-2 mt-lg-0">
-                    {% if res.Status == "Open" %}
-                    <button class="btn btn-successs p-3 d-flex align-items-center" type="button" data-bs-toggle="modal"
-                        data-bs-target="#staticBackdrop"> <i class="las la-plus"></i> Add Claim
-                        Lines
-                    </button>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    {% if res.Status == "Open"  %}
+                    <button class="button-88 me-md-2" type="button" type="button" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop"><i class="las la-plus"></i>Add Claim
+                        Lines</button>
                     {% elif res.Status == "Released" %}
                     <form action="{% url 'FnGenerateStaffClaimReport' res.No_ %}" method="post"
                         style="display:inline-block">
                         {% csrf_token %}
-                        <button class="btn btn-successs" type="submit"> Preview
-                            Report</button>
+                        <button class="button-88" type="submit"> Preview Report</button>
                     </form>
                     {% endif %}
                 </div>
@@ -46,105 +43,31 @@ STAFF CLAIM DETAIL
         </div>
         <!--alert -->
         {% include 'alerts.html' %}
-        <div class="row my-3">
-            <div class="col-md-3">
-                <div class="card l-bg-cherry statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-dollar-sign"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Claim Type</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Claim_Type}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="overview-content mt-4 row">
+            <div class="col-md-4">
+                <label class="custom-control" style="margin-left: -1.3rem;">
+                    <img src="../../static/icons/b1.png" height="20" width="20" class="img-fluid" alt="">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Claim Type: <span
+                            class="brs">{{res.Claim_Type}}</span></span>
+                </label>
             </div>
-            <div class="col-md-3">
-                <div class="card l-bg-blue-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-users"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Claim Status</h5>
-                        </div>
-                        {% if res.Status == "Open" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-red" role="progressbar" data-width="50%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100" style="width: 50%;"></div>
-                        </div>
-                        {% elif res.Status == "Pending Approval" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    {{res.Status}}
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-yellow" role="progressbar" data-width="25%" aria-valuenow="25"
-                                aria-valuemin="0" aria-valuemax="100" style="width: 75%;"></div>
-                        </div>
-                        {% elif res.Status == "Released" %}
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0">
-                                    Approved
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="progress mt-1 " data-height="8" style="height: 8px;">
-                            <div class="progress-bar l-bg-green" role="progressbar" data-width="75%" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100" style="width: 100%;"></div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card l-bg-green-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Cash Claim Amount</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0" id="petty_cash_amount">
-                                    {{res.Petty_Cash_Amount}}
-                                </h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card l-bg-orange-dark statCard h-100">
-                    <div class="card-statistic-3 p-4">
-                        <div class="card-icon card-icon-large"><i class="fas fa-calendar-times"></i></div>
-                        <div class="mb-4">
-                            <h5 class="card-title mb-0">Due Date</h5>
-                        </div>
-                        <div class="row align-items-center mb-2 d-flex">
-                            <div class="col-md-12">
-                                <h2 class="d-flex align-items-center mb-0" id="due_date_card">
-                                    {{res.Due_Date}}
-                                </h2>
-                            </div>
+            <div class="col-md-4">
+                <label class="custom-control custom-checkbox mb-3">
+                    <img src="../../static/icons/coins.png" height="20" width="20" class="img-fluid" alt="">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Cash Claim Amount: <span class="brs"
+                            id="petty_cash_amount">{{res.Petty_Cash_Amount}}</span></span>
 
-                        </div>
-                    </div>
-                </div>
+                </label>
+            </div>
+            <div class="col-md-4">
+                <label class="custom-control custom-checkbox mb-3">
+                    <img src="../../static/icons/schedule.png" height="20" width="20" class="img-fluid" alt="">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Due Date: <span id="due_date_card"
+                            class="brs">{{res.Due_Date}}</span></span>
+                </label>
             </div>
         </div>
         <div class="row">
@@ -153,13 +76,14 @@ STAFF CLAIM DETAIL
                     <div class="card mb-3">
                         <div class="card-header" id="headingOne">
                             <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
-                                    data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
                                     Details
                                 </button>
                             </h5>
                         </div>
-                        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-bs-parent="#accordion">
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                            data-bs-parent="#accordion">
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12">
@@ -208,12 +132,12 @@ STAFF CLAIM DETAIL
                     <div class="card mb-3">
                         <div class="card-header" id="headingTwo">
                             <h5 class="mb-0">
-                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                                    aria-expanded="true" aria-controls="collapseTwo">Staff Claim Lines</button>
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseTwo" aria-expanded="false"
+                                    aria-controls="collapseTwo">Staff Claim Lines</button>
                             </h5>
                         </div>
-                        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
-                            data-bs-parent="#accordion">
+                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordion">
                             <div class="card-body">
                                 <table id="example"
                                     class="display table table-striped table-bordered dt-responsive table-responsive-lg"
@@ -423,31 +347,27 @@ STAFF CLAIM DETAIL
         {% endif %}
     </div>
     </div>
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="staticBackdrop" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">New Staff Claim Line
+                    <h5 class="modal-title">New Staff Claim Line
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="myForm needs-validation" action="{% url 'ClaimDetail' res.No_ %}" method="post"
+                    <form class="myForm" action="{% url 'ClaimDetail' res.No_ %}" method="post"
                         enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input type="hidden" name="lineNo" value="0">
-                                <input type="hidden" name="myAction" value="insert">
-                            </div>
-                        </div>
-                        <div class="row">
+                        <input type="hidden" name="lineNo" value="0">
+                        <input type="hidden" name="myAction" value="insert">
+                        <div class="row my-3">
                             <div class="col-md-6">
                                 <label class="form-label">Claim Type <span class="text-danger">*</span></label>
                                 <select class="form-select" name="claimType" required>
-                                    <option selected disabled value="">Select Claim Type</option>
+                                    <option selected disabled value="o">--Select Claim Type--</option>
                                     {% for res in res_type %}
                                     <option value="{{res.Code}}">{{res.Description}}</option>
                                     {% endfor %}
@@ -458,7 +378,7 @@ STAFF CLAIM DETAIL
                                 <input type="text" class="form-control" name="amount" required>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-6">
                                 <label for="" class="form-label">Expenditure Date <span
                                         class="text-danger">*</span></label>
@@ -471,7 +391,7 @@ STAFF CLAIM DETAIL
                                 <input class="form-control" name="attachment" type="file" multiple required>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row my-3">
                             <div class="col-md-12">
                                 <label for="" class="form-label">Expenditure Description <span
                                         class="text-danger">*</span></label>
@@ -479,7 +399,8 @@ STAFF CLAIM DETAIL
                                     required></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success my-3 w-100">Submit</button>
+                        <button type="submit" class="button-88 my-3 w-100">Submit <i
+                                class="las la-arrow-right submit-icon"></i></button>
                     </form>
                 </div>
 

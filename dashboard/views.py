@@ -1,6 +1,8 @@
+import logging
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-import requests
 import datetime
+from datetime import datetime, timedelta
 from django.contrib import messages
 from django.views import View
 from myRequest.views import UserObjectMixins
@@ -46,6 +48,7 @@ class Dashboard(UserObjectMixins,View):
                 task_get_approvals = asyncio.ensure_future(self.simple_double_filtered_data(session,"/QyApprovalEntries",
                                                                                         "Approver_ID","eq",User_ID,"and",
                                                                                         "Status","eq","Open"))
+                
                 
                 response = await asyncio.gather(task_get_leave,task_get_training,task_get_imprest,task_get_surrender,
                                                 task_get_claim,task_get_purchase,task_get_repair,task_get_store,
@@ -97,8 +100,6 @@ class Dashboard(UserObjectMixins,View):
                                                   
                 pending_approval_count = len(response[9])
                  
-        
-                 
             ctx ={
                 "total_leave":total_leave,"open_leave":open_leave,"app_leave_list":app_leave_list,
                 "pending_leave":pending_leave,"total_training":total_training,"open_training":open_training,
@@ -125,7 +126,24 @@ class Dashboard(UserObjectMixins,View):
             return redirect('auth')  
         
         return render(request, 'main/dashboard.html',ctx)
+class Leave_Notification(UserObjectMixins,View):
+    async def get(self, request):
+        try:
+            tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+            notification = []
+            async with aiohttp.ClientSession() as session:
+                task_leavers = asyncio.ensure_future(self.simple_double_filtered_data(
+                                        session,"/QyLeaveApplications","Leave_Period",
+                                        "eq","PER 2021","and","Status","eq","Released"))
+                response = await asyncio.gather(task_leavers)
+                notification = [x for x in response[0] if x['Start_Date'] == tomorrow]
+                return JsonResponse({'notification': notification})
 
+                
+        except Exception as e:
+            logging.exception(e)
+            return redirect('dashboard')
+            
 class Manual(View):
     def get(self, request):
         try:

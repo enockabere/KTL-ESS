@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, redirect
 from datetime import date
 import requests
@@ -29,7 +30,7 @@ class Approve(UserObjectMixin,View):
     def get(self,request):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
  
 
             Access_Point = config.O_DATA.format(f"/QyApprovalEntries?$filter=Approver_ID%20eq%20%27{userID}%27")
@@ -84,7 +85,7 @@ class Approve(UserObjectMixin,View):
             countOther = len(openOther)
 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, e)
             return redirect('auth')
         except KeyError as e:
@@ -92,7 +93,7 @@ class Approve(UserObjectMixin,View):
             messages.info(request, "Session Expired. Please Login")
             return redirect('auth') 
 
-        ctx = {"today": self.todays_date, "imprest": openImp,"year": year, "full": userID,
+        ctx = {"today": self.todays_date, "imprest": openImp, "full": full_name,
             "countIMP": countIMP, "approvedIMP":approvedImp,"rejectedImp":rejectedImp,
             "openLeave":openLeave,"approvedLeave":approvedLeave,
             "rejectedLeave":rejectedLeave,"openSurrender":openSurrender,"countSurrender":countSurrender,"approveSurrender":approveSurrender,"rejectSurrender":rejectSurrender,
@@ -109,7 +110,9 @@ class ApproveDetails(UserObjectMixins, View):
     def get(self, request,pk):
         try:
             userID = request.session['User_ID']
-            year = request.session['years']
+            full_name =request.session['full_name']
+            data = []
+            state = 0
   
             response = self.double_filtered_data("/QyApprovalEntries","Document_No_","eq",pk,"and",
                                             "Approver_ID","eq",userID)
@@ -210,18 +213,18 @@ class ApproveDetails(UserObjectMixins, View):
                 
                 
         except requests.exceptions.RequestException as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, e)
             return redirect('approve')
         except KeyError as e:
             messages.info(request, e)
-            print(e)
+            logging.exception(e)
             return redirect('auth')
         except Exception as e:
             messages.info(request,e)
             return redirect('auth')
         ctx = {
-            "today": self.todays_date,"full": userID, "year": year,
+            "today": self.todays_date,"full": full_name,
              "res": res,"file":allFiles,"data":data,"state":state,
              "SurrenderLines":SurrenderLines,"ClaimLines":ClaimLines,
              "PurchaseLines":PurchaseLines,"ImpLine":ImprestLine,
@@ -229,12 +232,6 @@ class ApproveDetails(UserObjectMixins, View):
              "StoreLines":StoreLines,"VoucherLines":VoucherLines,
              "PettyLines":PettyLines,"PettySurrenderLines":PettySurrenderLines
         }
-
-        # ctx = {"today": self.todays_date, "full": userID, "year": year,
-        # 
-        # 
-        # 
-        # }
         return render(request, 'approveDetails.html', ctx)
 
 
@@ -262,7 +259,7 @@ def All_Approved(request, pk):
             print(response)
             return redirect('approve')
         except Exception as e:
-            print(e)
+            logging.exception(e)
             messages.info(request, e)
             return redirect('ApproveData', pk=pk)
     return redirect('ApproveData', pk=pk)
