@@ -5,78 +5,101 @@ LOGIN
 {% block head %}
 <link rel="stylesheet" href="../../static/css/auth.css">
 <link rel="stylesheet" href="../../static/css/base.css">
-<style>
-    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
-
-    :root {
-        --first-color: #144a85;
-        --first-color-light: #6c8aaf;
-        --green-color: #134326;
-        --candy-red: #FF0800;
-        --sand-tan: #e1b382;
-        --dark-color: #444a4a;
-        --olive: #a3bcb6;
-        --white-color: #f7f6fb;
-        --primary-font: "Gelasio", serif;
-        --normal-font: "Titillium Web", sans-serif;
-    }
-
-    body,
-    input {
-        background: linear-gradient(180deg, rgba(24, 6, 6, 0) 35.87%, #190505 91.96%),
-            url(../../static/img/bg/4.png);
-        background-repeat: no-repeat;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-<section class="wrapping">
-    <div class="container">
+<section class="n-login">
+    <div class="container-fluid px-0">
         <div class="row">
-            <div class="col-md-6">
-                <div class="forms-container">
-                    <div class="signin-signup">
-                        <form action="{% url 'auth' %}" method="POST" class="sign-in-form">
-                            {% csrf_token %}
-                            <div class="logo mx-auto text-center">
-                                <img src="../../static/img/logo/1.png" alt="" srcset="">
-                            </div>
-                            {% include 'alerts.html' %}
-                            <div class="input-field">
-                                <i class="las la-user-circle"></i>
-                                <input type="text" placeholder="Username" name="username" />
-                            </div>
-                            <div class="input-field">
-                                <i class="las la-lock"></i>
-                                <input type="password" placeholder="Password" name="password" />
-                            </div>
-                            <button type="submit" class="btn">Login</button>
-                        </form>
+            <div id='n-left' class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="n-icon mx-auto text-center">
+                            <p>
+                                <i class="las la-align-left" style="color:white;font-size:25px"></i>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class="row">
+                    <div class="col-md-12 mx-auto text-center">
+                        <div class="brand">
+                            <h2 class="n-brand">EMPLOYEE SELF SERVICE PORTAL</br> <span class="br-brand">KTL</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="l-text mx-auto text-center">
 
-            <div class="col-md-6">
-                <div class="panels-container">
-                    <div class="panel left-panel">
-                        <div class="content">
-                            <h3>EMPLOYEE SELF SERVICE PORTAL</h3>
                             <p>
                                 The portal allows employees to directly complete job-related tasks in a more
                                 reliable,
                                 effective, and self-empowering experience.
                             </p>
                             <button class="btn transparent my-2" id="sign-up-btn">
-                                Download Manual
+                                Download Manual <i class="las la-arrow-down download-icon"></i>
                             </button>
                         </div>
-                        <img src="../../static/icons/l1.svg" class="image img-fluid" alt="" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="l-image mx-auto text-center">
+                            <img src='../../static/icons/technology.png' class="img-fluid image rotate-image"
+                                alt="brand image" srcset="">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div id="n-right1" class="col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="logo mx-auto text-center">
+                            <img src="../../static/img/logo/1.png" class="image" alt="" srcset="">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-text">
+                            <div class="pr-3" style="margin-right: 2rem !important;">
+                                {% include 'alerts.html' %}
+                            </div>
+                            <h3>Sign In</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="l-form">
+                            <div class="login-form">
+                                <form action="{% url 'auth' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <label class="form-label">Username</label>
+                                        <input type="text" class="form-control" name="username"
+                                            placeholder="Enter Username" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Password</label>
+                                        <input type="password" class="form-control" name="password"
+                                            placeholder="Enter Password" required="required">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="button-88">Login <i
+                                                class="las la-arrow-right submit-icon"></i></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
 </section>
 
 {% endblock %}

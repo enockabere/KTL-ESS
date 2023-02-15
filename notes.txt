@@ -12,3 +12,43 @@ reliever is mandatory
 leave type
 date
 
+<section class="wrapping">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="forms-container">
+                    <div class="signin-signup">
+                        <form action="{% url 'auth' %}" method="POST" class="sign-in-form">
+                            {% csrf_token %}
+                            <div class="logo mx-auto text-center">
+                                <img src="../../static/img/logo/1.png" alt="" srcset="">
+                            </div>
+                            {% include 'alerts.html' %}
+                            <div class="input-field">
+                                <i class="las la-user-circle"></i>
+                                <input type="text" placeholder="Username" name="username" />
+                            </div>
+                            <div class="input-field">
+                                <i class="las la-lock"></i>
+                                <input type="password" placeholder="Password" name="password" />
+                            </div>
+                            <button type="submit" class="btn">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panels-container">
+                    <div class="panel left-panel">
+                        <div class="content">
+                            <h3>EMPLOYEE SELF SERVICE PORTAL</h3>
+                            
+                        </div>
+                        <img src="../../static/icons/technology.png" class="image img-fluid" alt="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
