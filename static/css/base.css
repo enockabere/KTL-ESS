@@ -6,7 +6,7 @@
 :root {
   --header-height: 3rem;
   --nav-width: 76px;
-  --first-color: #ff0800;
+  --first-color: #ad622d;
   --first-color-light: #6c8aaf;
   --green-color: #333;
   --green: #000;
@@ -244,7 +244,7 @@ input.invalid {
   color: #fff !important;
   background-image: linear-gradient(
     to left bottom,
-    #ff0800,
+    #ad622d,
     #050505,
     #080808,
     #000,

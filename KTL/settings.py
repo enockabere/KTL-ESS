@@ -145,8 +145,8 @@ WEB_SERVICE_UID = config('WEB_SERVICE_UID')
 WEB_SERVICE_PWD = config('WEB_SERVICE_PWD')
 
 
-O_DATA = "http://20.127.107.47:1448/KTL/ODataV4/Company('KTL'){}"
-BASE_URL = 'http://20.127.107.47:1447/KTL/WS/KTL/Codeunit/WebPortal'
+O_DATA = config('O_DATA')
+BASE_URL = config('BASE_URL')
 AUTHS.auth = HTTPBasicAuth(WEB_SERVICE_UID, WEB_SERVICE_PWD)
 
 CLIENT = Client(BASE_URL, transport=Transport(session=AUTHS))
